@@ -1,0 +1,18 @@
+{
+  "name": "SmartBill",
+  "short_name": "SmartBill",
+  "description": "Simple billing and shop management for growing businesses.",
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "background_color": "#f6faf8",
+  "theme_color": "#102033",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/static/assets/smartbill-favicon.png?v=20261028-new-logo",
+      "sizes": "583x585",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

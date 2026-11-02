@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: smartbill
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    preDeployCommand: alembic upgrade head
+    startCommand: gunicorn --bind 0.0.0.0:$PORT "app:create_app()"
+    healthCheckPath: /
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: SMARTBILL_SECRET_KEY
+        sync: false
+      - key: SMARTBILL_PUBLIC_URL
+        sync: false
+      - key: SMARTBILL_SECURE_COOKIES
+        value: "true"
+      - key: FLASK_DEBUG
+        value: "false"
+      - key: SMARTBILL_AUTO_CREATE_SCHEMA
+        value: "false"
+      - key: SMARTBILL_LOG_LEVEL
+        value: INFO
+      - key: RATELIMIT_STORAGE_URI
+        sync: false

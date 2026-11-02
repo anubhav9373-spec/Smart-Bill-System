@@ -1,176 +1,37 @@
-document.addEventListener("DOMContentLoaded", () => {
-
-    const CURRENT_BILL_KEY =
-        "smartbill_current_bill";
-
-
-    const savedBill =
-        localStorage.getItem(CURRENT_BILL_KEY);
-
-
-    if (!savedBill) {
-
-        document.getElementById(
-            "customerName"
-        ).textContent = "No invoice available.";
-
-        return;
-    }
-
-
-    let bill;
-
-
-    try {
-
-        bill = JSON.parse(savedBill);
-
-    } catch (error) {
-
-        console.error(
-            "Invalid invoice data:",
-            error
-        );
-
-        return;
-    }
-
-
-    document.getElementById(
-        "invoiceNumber"
-    ).textContent =
-        bill.invoiceNumber || "-";
-
-
-    document.getElementById(
-        "customerName"
-    ).textContent =
-        bill.customerName || "User";
-
-
-    document.getElementById(
-        "invoiceDate"
-    ).textContent =
-        formatDate(bill.date);
-
-
-    const itemsContainer =
-        document.getElementById(
-            "invoiceItems"
-        );
-
-
-    itemsContainer.innerHTML = "";
-
-
-    if (!Array.isArray(bill.items)) {
-        return;
-    }
-
-
-    bill.items.forEach(item => {
-
-        const row =
-            document.createElement("div");
-
-        row.className =
-            "receipt-item";
-
-
-        const subtotal =
-            Number(item.price) *
-            Number(item.quantity);
-
-
-        row.innerHTML = `
-
-            <span class="item-name">
-                ${escapeHtml(item.name)}
-
-                <small class="item-unit">
-                    ${escapeHtml(item.unit)}
-                </small>
-            </span>
-
-            <span>
-                ${item.quantity}
-            </span>
-
-            <span>
-                ₹${Number(item.price).toFixed(2)}
-            </span>
-
-            <span>
-                ₹${subtotal.toFixed(2)}
-            </span>
-
-        `;
-
-
-        itemsContainer.appendChild(row);
-
+whenSmartBillReady(function () {
+  var invoiceId = sessionStorage.getItem('smartbill_current_invoice_id');
+  if (!invoiceId) return;
+  SmartBillAPI.get('/api/invoices/' + invoiceId).then(function (data) {
+    var invoice = data.invoice;
+    var settings = window.SmartBillSession.settings;
+    document.getElementById('storeName').textContent = settings.storeName;
+    document.getElementById('storeAddress').textContent = settings.address;
+    document.getElementById('storePhone').textContent = settings.phone;
+    document.getElementById('invNo').textContent = invoice.id;
+    document.getElementById('invDate').textContent = new Date(invoice.date).toLocaleString('en-IN', {
+      timeZone: 'Asia/Kolkata'
     });
-
-
-    document.getElementById(
-        "invoiceSubtotal"
-    ).textContent =
-        formatCurrency(bill.subtotal);
-
-
-    document.getElementById(
-        "invoiceDiscount"
-    ).textContent =
-        formatCurrency(bill.discount);
-
-
-    document.getElementById(
-        "invoiceTotal"
-    ).textContent =
-        formatCurrency(bill.total);
-
-
-    function formatCurrency(value) {
-
-        return `₹${Number(value || 0).toFixed(2)}`;
-
-    }
-
-
-    function formatDate(value) {
-
-        if (!value) {
-            return "-";
-        }
-
-
-        const date =
-            new Date(value);
-
-
-        return date.toLocaleString(
-            "en-IN",
-            {
-                day: "2-digit",
-                month: "short",
-                year: "numeric",
-                hour: "2-digit",
-                minute: "2-digit"
-            }
-        );
-
-    }
-
-
-    function escapeHtml(value) {
-
-        return String(value)
-            .replaceAll("&", "&amp;")
-            .replaceAll("<", "&lt;")
-            .replaceAll(">", "&gt;")
-            .replaceAll('"', "&quot;")
-            .replaceAll("'", "&#039;");
-
-    }
-
+    document.getElementById('invCust').textContent = invoice.customerName;
+    document.getElementById('invItems').innerHTML = invoice.items.map(function (item) {
+      return '<div class="pos-item-row"><span class="col-name">' + escapeHtml(item.name) + '</span><span class="col-qty">' + item.qty + '</span><span class="col-rate">' + item.price.toLocaleString('en-IN') + '</span><span class="col-amt">' + item.total.toLocaleString('en-IN') + '</span></div>';
+    }).join('');
+    document.getElementById('invSubtotal').textContent = '₹' + invoice.subtotal.toLocaleString('en-IN', { minimumFractionDigits: 2 });
+    document.getElementById('invDiscount').textContent = '₹' + invoice.discount.toLocaleString('en-IN', { minimumFractionDigits: 2 });
+    document.getElementById('invTotal').textContent = '₹' + invoice.total.toLocaleString('en-IN', { minimumFractionDigits: 2 });
+    var shareUrl = '';
+    document.getElementById('shareQrBtn').addEventListener('click', function () {
+      SmartBillAPI.post('/api/invoices/' + invoice.internalId + '/share', {}).then(function (data) {
+      shareUrl = data.url;
+      if (typeof QRious === 'undefined') throw new Error('QR generator is unavailable. Please refresh the page and try again.');
+      new QRious({ element: document.getElementById('shareQrCanvas'), value: shareUrl, size: 240, level: 'H' });
+      document.getElementById('shareQrHint').textContent = 'Secure link active until ' + new Date(data.expiresAt).toLocaleString('en-IN');
+      document.getElementById('shareQrModal').classList.remove('hidden');
+      }).catch(function (error) { alert(error.message); });
+    });
+    document.getElementById('copyShareLinkBtn').addEventListener('click', function () {
+      if (!shareUrl) return alert('Generate the QR link first.');
+      navigator.clipboard.writeText(shareUrl).then(function () { alert('Link copied.'); }).catch(function () { alert('Unable to copy link.'); });
+    });
+  }).catch(function (error) { alert(error.message); });
+  ['closeShareQrBtn', 'closeShareQrBtn2'].forEach(function (id) { document.getElementById(id).addEventListener('click', function () { document.getElementById('shareQrModal').classList.add('hidden'); }); });
 });

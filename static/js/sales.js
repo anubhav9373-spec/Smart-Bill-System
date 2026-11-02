@@ -1,452 +1,52 @@
-document.addEventListener("DOMContentLoaded", () => {
-
-    const SALES_KEY =
-        "smartbill_sales";
-
-
-    const searchInput =
-        document.getElementById("salesSearch");
-
-
-    const dateInput =
-        document.getElementById("salesDate");
-
-
-    const clearButton =
-        document.getElementById(
-            "clearSalesFilters"
-        );
-
-
-    const tableBody =
-        document.getElementById(
-            "salesTableBody"
-        );
-
-
-    const emptyState =
-        document.getElementById(
-            "salesEmptyState"
-        );
-
-
-    const billCount =
-        document.getElementById(
-            "salesBillCount"
-        );
-
-
-    const totalAmount =
-        document.getElementById(
-            "salesTotalAmount"
-        );
-
-
-    function getSales() {
-
-        const savedSales =
-            localStorage.getItem(
-                SALES_KEY
-            );
-
-
-        if (!savedSales) {
-            return [];
-        }
-
-
-        try {
-
-            const sales =
-                JSON.parse(savedSales);
-
-
-            return Array.isArray(sales)
-                ? sales
-                : [];
-
-        } catch (error) {
-
-            console.error(
-                "Unable to read sales history:",
-                error
-            );
-
-            return [];
-        }
-    }
-
-
-    function formatCurrency(value) {
-
-        return `₹${Number(value || 0).toFixed(2)}`;
-
-    }
-
-
-    function formatDate(value) {
-
-        if (!value) {
-            return "-";
-        }
-
-
-        const date =
-            new Date(value);
-
-
-        if (Number.isNaN(date.getTime())) {
-            return "-";
-        }
-
-
-        return date.toLocaleString(
-            "en-IN",
-            {
-                day: "2-digit",
-                month: "short",
-                year: "numeric",
-                hour: "2-digit",
-                minute: "2-digit"
-            }
-        );
-
-    }
-
-
-    function escapeHtml(value) {
-
-        return String(value)
-            .replaceAll("&", "&amp;")
-            .replaceAll("<", "&lt;")
-            .replaceAll(">", "&gt;")
-            .replaceAll('"', "&quot;")
-            .replaceAll("'", "&#039;");
-
-    }
-
-
-    function getItemCount(sale) {
-
-        if (!Array.isArray(sale.items)) {
-            return 0;
-        }
-
-
-        return sale.items.reduce(
-            (total, item) =>
-                total + Number(item.quantity || 0),
-            0
-        );
-
-    }
-
-
-    function renderSales() {
-
-        const sales =
-            getSales();
-
-
-        const searchTerm =
-            searchInput.value
-                .trim()
-                .toLowerCase();
-
-
-        const selectedDate =
-            dateInput.value;
-
-
-        const filteredSales =
-            sales.filter(sale => {
-
-                const invoiceNumber =
-                    String(
-                        sale.invoiceNumber || ""
-                    ).toLowerCase();
-
-
-                const customerName =
-                    String(
-                        sale.customerName || ""
-                    ).toLowerCase();
-
-
-                const matchesSearch =
-                    !searchTerm ||
-                    invoiceNumber.includes(searchTerm) ||
-                    customerName.includes(searchTerm);
-
-
-                let matchesDate = true;
-
-
-                if (selectedDate) {
-
-                    const saleDate =
-                        new Date(sale.date);
-
-
-                    if (
-                        Number.isNaN(
-                            saleDate.getTime()
-                        )
-                    ) {
-
-                        matchesDate = false;
-
-                    } else {
-
-                        const year =
-                            saleDate.getFullYear();
-
-
-                        const month =
-                            String(
-                                saleDate.getMonth() + 1
-                            ).padStart(2, "0");
-
-
-                        const day =
-                            String(
-                                saleDate.getDate()
-                            ).padStart(2, "0");
-
-
-                        const saleDateString =
-                            `${year}-${month}-${day}`;
-
-
-                        matchesDate =
-                            saleDateString ===
-                            selectedDate;
-                    }
-                }
-
-
-                return (
-                    matchesSearch &&
-                    matchesDate
-                );
-
-            });
-
-
-        renderTable(
-            filteredSales
-        );
-
-
-        updateSummary(
-            filteredSales
-        );
-
-    }
-
-
-    function renderTable(sales) {
-
-        tableBody.innerHTML = "";
-
-
-        if (sales.length === 0) {
-
-            emptyState.hidden = false;
-
-            return;
-        }
-
-
-        emptyState.hidden = true;
-
-
-        sales.forEach(sale => {
-
-            const row =
-                document.createElement("tr");
-
-
-            row.innerHTML = `
-
-                <td>
-                    <strong>
-                        ${escapeHtml(
-                            sale.invoiceNumber || "-"
-                        )}
-                    </strong>
-                </td>
-
-
-                <td>
-                    ${escapeHtml(
-                        sale.customerName || "User"
-                    )}
-                </td>
-
-
-                <td>
-                    ${formatDate(
-                        sale.date
-                    )}
-                </td>
-
-
-                <td>
-                    ${getItemCount(sale)}
-                </td>
-
-
-                <td>
-                    <strong>
-                        ${formatCurrency(
-                            sale.total
-                        )}
-                    </strong>
-                </td>
-
-
-                <td>
-
-                    <button
-                        type="button"
-                        class="button small-button view-invoice-button"
-                        data-invoice-id="${escapeHtml(
-                            sale.id || sale.invoiceNumber
-                        )}"
-                    >
-                        View Invoice
-                    </button>
-
-                </td>
-
-            `;
-
-
-            tableBody.appendChild(row);
-
-        });
-
-
-        attachInvoiceButtons();
-
-    }
-
-
-    function attachInvoiceButtons() {
-
-        const buttons =
-            document.querySelectorAll(
-                ".view-invoice-button"
-            );
-
-
-        buttons.forEach(button => {
-
-            button.addEventListener(
-                "click",
-                () => {
-
-                    const invoiceId =
-                        button.dataset.invoiceId;
-
-
-                    openInvoice(
-                        invoiceId
-                    );
-
-                }
-            );
-
-        });
-
-    }
-
-
-    function openInvoice(invoiceId) {
-
-        const sales =
-            getSales();
-
-
-        const sale =
-            sales.find(
-                item =>
-                    String(
-                        item.id ||
-                        item.invoiceNumber
-                    ) === String(invoiceId)
-            );
-
-
-        if (!sale) {
-
-            alert(
-                "Invoice could not be found."
-            );
-
-            return;
-        }
-
-
-        localStorage.setItem(
-            "smartbill_current_bill",
-            JSON.stringify(sale)
-        );
-
-
-        window.location.href =
-            "/invoice";
-
-    }
-
-
-    function updateSummary(sales) {
-
-        billCount.textContent =
-            sales.length;
-
-
-        const total =
-            sales.reduce(
-                (sum, sale) =>
-                    sum +
-                    Number(sale.total || 0),
-                0
-            );
-
-
-        totalAmount.textContent =
-            formatCurrency(total);
-
-    }
-
-
-    searchInput.addEventListener(
-        "input",
-        renderSales
-    );
-
-
-    dateInput.addEventListener(
-        "change",
-        renderSales
-    );
-
-
-    clearButton.addEventListener(
-        "click",
-        () => {
-
-            searchInput.value = "";
-            dateInput.value = "";
-
-            renderSales();
-
-        }
-    );
-
-
-    renderSales();
-
+whenSmartBillReady(function () {
+  var sales = [];
+  var tableBody = document.getElementById('salesTableBody');
+  var searchInput = document.getElementById('salesSearch');
+  var dateInput = document.getElementById('salesDateFilter');
+
+  function money(value) {
+    return '₹' + Number(value || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  function localDate(value) {
+    var date = new Date(value);
+    return isNaN(date.getTime()) ? '—' : date.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
+  }
+
+  function render() {
+    var query = searchInput.value.trim().toLowerCase();
+    var date = dateInput.value;
+    var filtered = sales.filter(function (invoice) {
+      var invoiceId = String(invoice.id || '').toLowerCase();
+      var customer = String(invoice.customerName || '').toLowerCase();
+      return (!query || invoiceId.indexOf(query) !== -1 || customer.indexOf(query) !== -1) &&
+        (!date || String(invoice.date || '').slice(0, 10) === date);
+    });
+
+    document.getElementById('totalBillsCount').textContent = filtered.length;
+    document.getElementById('totalSalesAmount').textContent = money(filtered.reduce(function (sum, item) { return sum + Number(item.total || 0); }, 0));
+    document.getElementById('totalDiscountAmount').textContent = money(filtered.reduce(function (sum, item) { return sum + Number(item.discount || 0); }, 0));
+    document.getElementById('emptySalesState').classList.toggle('hidden', filtered.length > 0);
+    tableBody.innerHTML = filtered.map(function (invoice) {
+      return '<tr><td><strong>' + escapeHtml(String(invoice.id || '—')) + '</strong></td><td>' + escapeHtml(String(invoice.customerName || 'Walk-in customer')) + '</td><td>' + localDate(invoice.date) + '</td><td class="text-center">' + (invoice.items || []).length + '</td><td class="text-right"><strong>' + money(invoice.total) + '</strong></td><td class="text-center"><button class="btn btn-primary view-btn" data-id="' + escapeHtml(String(invoice.internalId || '')) + '">View</button></td></tr>';
+    }).join('');
+  }
+
+  SmartBillAPI.get('/api/invoices').then(function (data) {
+    sales = Array.isArray(data.invoices) ? data.invoices : [];
+    render();
+  });
+  searchInput.addEventListener('input', render);
+  dateInput.addEventListener('change', render);
+  document.getElementById('clearFiltersBtn').addEventListener('click', function () {
+    searchInput.value = '';
+    dateInput.value = '';
+    render();
+  });
+  tableBody.addEventListener('click', function (event) {
+    var button = event.target.closest('.view-btn');
+    if (!button) return;
+    sessionStorage.setItem('smartbill_current_invoice_id', String(button.dataset.id));
+    window.location.href = '/invoice';
+  });
 });

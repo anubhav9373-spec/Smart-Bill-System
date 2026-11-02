@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Invoice — SmartBill</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      background: #0f172a;
+      min-height: 100vh;
+      padding: 20px 16px 40px;
+      color: #0f172a;
+    }
+    .wrap { max-width: 400px; margin: 0 auto; }
+    .actions { display: flex; gap: 10px; margin-bottom: 16px; justify-content: center; }
+    
+    .btn-download {
+      background: #10b981;
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      padding: 14px 24px;
+      font-weight: 800;
+      font-size: 15px;
+      cursor: pointer;
+      font-family: inherit;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);
+      width: 100%;
+      justify-content: center;
+    }
+    .btn-download:active { transform: scale(0.98); }
+
+    /* =========================================
+       EXACT MATCH POS RECEIPT STYLES
+       ========================================= */
+    .pos-receipt-wrapper {
+      display: flex;
+      justify-content: center;
+      width: 100%;
+    }
+    .pos-receipt-card {
+      background: #ffffff !important;
+      color: #000000 !important;
+      width: 340px !important;
+      max-width: 100% !important;
+      padding: 24px 20px !important;
+      font-family: 'Courier New', Courier, monospace !important;
+      font-size: 12px !important;
+      line-height: 1.4 !important;
+      border-radius: 8px !important;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3) !important;
+      box-sizing: border-box !important;
+      overflow: hidden !important;
+    }
+    .pos-header { text-align: center; }
+    .share-logo {
+      display: block;
+      width: min(220px, 100%);
+      height: auto;
+      margin: 0 auto 10px;
+      object-fit: contain;
+    }
+    .pos-title {
+      font-size: 22px !important;
+      font-weight: 900 !important;
+      margin: 0 0 4px 0 !important;
+      letter-spacing: -0.5px !important;
+      color: #000000 !important;
+    }
+    .pos-store-name { font-weight: bold !important; margin: 2px 0 !important; font-size: 12px !important; color: #333333 !important; }
+    .pos-sub { margin: 2px 0 !important; font-size: 12px !important; color: #333333 !important; }
+    .pos-phone { margin: 2px 0 0 0 !important; font-size: 12px !important; color: #333333 !important; font-weight: 600 !important; }
+
+    .pos-divider {
+      border-bottom: 1px dashed #000000 !important;
+      margin: 12px 0 !important;
+      width: 100% !important;
+    }
+
+    .pos-meta-grid { display: flex; flex-direction: column; gap: 4px; }
+    .pos-meta-row { display: flex; justify-content: space-between; font-size: 12px; }
+    .pos-meta-row strong { text-align: right; word-break: break-word; }
+
+    .pos-items-table { width: 100%; }
+    .pos-items-header {
+      display: grid;
+      grid-template-columns: 1fr 36px 54px 64px;
+      gap: 4px;
+      padding-bottom: 6px;
+      border-bottom: 1px dashed #000000;
+      font-weight: bold;
+      font-size: 11px;
+    }
+    .pos-items-body { display: flex; flex-direction: column; }
+    .pos-item-row {
+      display: grid;
+      grid-template-columns: 1fr 36px 54px 64px;
+      gap: 4px;
+      padding: 6px 0;
+      border-bottom: 1px dotted #e2e8f0;
+      align-items: start;
+    }
+    .pos-item-row:last-child { border-bottom: none; }
+
+    .col-name { text-align: left; word-break: break-word; font-weight: 600; padding-right: 4px; }
+    .col-qty { text-align: center; }
+    .col-rate { text-align: right; }
+    .col-amt { text-align: right; font-weight: bold; }
+
+    .pos-totals-grid { display: flex; flex-direction: column; gap: 6px; }
+    .pos-total-row { display: flex; justify-content: space-between; font-size: 13px; }
+    .pos-grand-total { font-size: 16px !important; font-weight: 900 !important; padding-top: 4px; }
+
+    .pos-footer { text-align: center; margin-top: 8px; }
+    .pos-thanks { font-weight: bold; margin-bottom: 4px; }
+    .pos-powered { font-size: 10px; color: #666666; }
+    
+    .tip { color: #94a3b8; font-size: 12px; text-align: center; margin-top: 16px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    
+    {% if bill_data %}
+    <div class="actions">
+      <button type="button" class="btn-download" id="downloadImgBtn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Download Bill Image
+      </button>
+    </div>
+
+    <div class="pos-receipt-wrapper">
+      <div id="receiptCard" class="pos-receipt-card">
+        
+        <div class="pos-header">
+          <img src="{{ url_for('static', filename='assets/smartbill-logo-light-bg.png', v='20261028-new-logo') }}" alt="SmartBill" class="share-logo">
+          <p class="pos-store-name" id="storeName">{{ bill_data.store.storeName }}</p>
+          <p class="pos-sub" id="storeAddress">{{ bill_data.store.address }}</p>
+          <p class="pos-phone" id="storePhone">{{ bill_data.store.phone }}</p>
+        </div>
+
+        <div class="pos-divider"></div>
+
+        <div class="pos-meta-grid">
+          <div class="pos-meta-row">
+            <span>Invoice No:</span>
+            <strong id="invNo">{{ bill_data.invoice.id }}</strong>
+          </div>
+          <div class="pos-meta-row">
+            <span>Date & Time:</span>
+            <strong id="invDate" data-raw="{{ bill_data.invoice.date }}"></strong>
+          </div>
+          <div class="pos-meta-row">
+            <span>Bill To:</span>
+            <strong id="invCust">{{ bill_data.invoice.customerName }}</strong>
+          </div>
+        </div>
+
+        <div class="pos-divider"></div>
+
+        <div class="pos-items-table">
+          <div class="pos-items-header">
+            <span class="col-name">ITEM</span>
+            <span class="col-qty">QTY</span>
+            <span class="col-rate">RATE</span>
+            <span class="col-amt">AMT</span>
+          </div>
+          <div class="pos-items-body">
+            {% for item in bill_data.invoice['items'] %}
+            <div class="pos-item-row">
+              <span class="col-name">{{ item.name }}</span>
+              <span class="col-qty">{{ item.qty }}</span>
+              <span class="col-rate">{{ item.price }}</span>
+              <span class="col-amt">{{ item.total }}</span>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="pos-divider"></div>
+
+        <div class="pos-totals-grid">
+          <div class="pos-total-row">
+            <span>Subtotal</span>
+            <span id="invSubtotal" data-val="{{ bill_data.invoice.subtotal }}"></span>
+          </div>
+          <div class="pos-total-row">
+            <span>Discount</span>
+            <span id="invDiscount" data-val="{{ bill_data.invoice.discount }}"></span>
+          </div>
+          <div class="pos-divider" style="margin: 6px 0;"></div>
+          <div class="pos-total-row pos-grand-total">
+            <span>TOTAL</span>
+            <span id="invTotal" data-val="{{ bill_data.invoice.total }}"></span>
+          </div>
+        </div>
+
+        <div class="pos-divider" style="margin-top: 16px;"></div>
+
+        <div class="pos-footer">
+          <p class="pos-thanks">Thank You! Visit Again</p>
+          <p class="pos-powered">Powered by SmartBill</p>
+        </div>
+
+      </div>
+    </div>
+
+    <p class="tip">Tap 'Download Bill Image' to save the receipt directly to your gallery.</p>
+    
+    {% else %}
+    <div class="pos-receipt-card text-center" style="margin: 0 auto; padding: 40px 20px !important;">
+      <h3 style="margin-bottom: 8px;">Bill Expired</h3>
+      <p style="color: #666; font-size: 12px;">Please generate a new QR code from the billing counter.</p>
+    </div>
+    {% endif %}
+
+  </div>
+
+  <script>
+    function money(n) {
+      return '₹' + Number(n || 0).toLocaleString('en-IN', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+    }
+
+    // Format Date & Time
+    function formatDateTime(isoStr) {
+      if (!isoStr) return '-';
+      var d = new Date(isoStr);
+      if (isNaN(d.getTime())) return isoStr;
+      return d.toLocaleDateString('en-IN', { day: '2-digit', month: '2-digit', year: 'numeric' }) + ' ' +
+             d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true }).toLowerCase();
+    }
+
+    // Safely format data without causing JS syntax errors in VS Code
+    var invDateEl = document.getElementById('invDate');
+    var invSubtotalEl = document.getElementById('invSubtotal');
+    var invDiscountEl = document.getElementById('invDiscount');
+    var invTotalEl = document.getElementById('invTotal');
+
+    if (invDateEl && invDateEl.dataset.raw) {
+      invDateEl.textContent = formatDateTime(invDateEl.dataset.raw);
+    }
+    if (invSubtotalEl) {
+      invSubtotalEl.textContent = money(invSubtotalEl.dataset.val);
+    }
+    if (invDiscountEl) {
+      invDiscountEl.textContent = money(invDiscountEl.dataset.val);
+    }
+    if (invTotalEl) {
+      invTotalEl.textContent = money(invTotalEl.dataset.val);
+    }
+
+    // 1-Click Image Download
+    var downloadBtn = document.getElementById('downloadImgBtn');
+    if (downloadBtn) {
+      downloadBtn.addEventListener('click', function () {
+        var btn = this;
+        var card = document.getElementById('receiptCard');
+        btn.textContent = 'Generating Image...';
+        btn.disabled = true;
+
+        html2canvas(card, { scale: 3, backgroundColor: '#ffffff' }).then(function (canvas) {
+          var a = document.createElement('a');
+          a.download = 'Receipt-' + ((document.getElementById('invNo') && document.getElementById('invNo').textContent) || 'Bill') + '.png';
+          a.href = canvas.toDataURL('image/png');
+          a.click();
+          btn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Saved to Gallery!';
+          setTimeout(function() {
+            btn.disabled = false;
+            btn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Download Bill Image';
+          }, 2000);
+        });
+      });
+    }
+  </script>
+</body>
+</html>

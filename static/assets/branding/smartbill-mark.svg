@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title">
+  <title id="title">SmartBill mark</title>
+  <defs>
+    <linearGradient id="brand" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#19B875"/>
+      <stop offset="1" stop-color="#07864F"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="32" fill="#102033"/>
+  <path d="M64 17 102 31v37c0 25-16 43-38 53C42 111 26 93 26 68V31l38-14Z" fill="url(#brand)"/>
+  <path d="m45 65 12 12 27-29" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="10"/>
+</svg>

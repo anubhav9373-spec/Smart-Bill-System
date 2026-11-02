@@ -1,736 +1,157 @@
-document.addEventListener("DOMContentLoaded", () => {
+whenSmartBillReady(function () {
+  var products = [];
+  var tableBody = document.getElementById('productsTableBody');
+  var mobileList = document.getElementById('productsMobileList');
+  var searchInput = document.getElementById('searchInput');
+  var categoryFilter = document.getElementById('categoryFilter');
+  var categoryPills = document.getElementById('categoryPills');
+  var emptyState = document.getElementById('emptyState');
+  var errorBox = document.getElementById('productsError');
+  var addModal = document.getElementById('addProductModal');
+  var editModal = document.getElementById('editProductModal');
+  var deleteModal = document.getElementById('deleteModal');
+  var deleteTargetId = null;
 
-  const STORAGE_KEY = "smartbill_products";
-
-  const defaultProducts = [
-    {
-      id: 1,
-      name: "Rice",
-      category: "Groceries",
-      unit: "kg",
-      price: 60,
-      initialStock: 120,
-      stock: 120,
-      minStock: 20
-    },
-    {
-      id: 2,
-      name: "Sugar",
-      category: "Groceries",
-      unit: "kg",
-      price: 45,
-      initialStock: 100,
-      stock: 85,
-      minStock: 15
-    },
-    {
-      id: 3,
-      name: "Tea",
-      category: "Beverages",
-      unit: "pcs",
-      price: 120,
-      initialStock: 50,
-      stock: 40,
-      minStock: 10
-    },
-    {
-      id: 4,
-      name: "Biscuits",
-      category: "Snacks",
-      unit: "pcs",
-      price: 30,
-      initialStock: 20,
-      stock: 8,
-      minStock: 10
-    },
-    {
-      id: 5,
-      name: "Cooking Oil",
-      category: "Groceries",
-      unit: "litre",
-      price: 150,
-      initialStock: 30,
-      stock: 25,
-      minStock: 10
-    },
-    {
-      id: 6,
-      name: "Salt",
-      category: "Groceries",
-      unit: "kg",
-      price: 20,
-      initialStock: 10,
-      stock: 3,
-      minStock: 5
-    }
-  ];
-
-
-  const productTable = document.getElementById("productTable");
-  const searchInput = document.getElementById("productSearch");
-  const categoryFilter = document.getElementById("categoryFilter");
-
-  const modal = document.getElementById("productModal");
-  const deleteModal = document.getElementById("deleteModal");
-
-  const form = document.getElementById("productForm");
-
-  const modalTitle = document.getElementById("productModalTitle");
-
-  const productId = document.getElementById("productId");
-  const productName = document.getElementById("productName");
-  const productCategory = document.getElementById("productCategory");
-  const productUnit = document.getElementById("productUnit");
-  const productPrice = document.getElementById("productPrice");
-  const productInitialStock = document.getElementById("productInitialStock");
-  const productStock = document.getElementById("productStock");
-  const productMinStock = document.getElementById("productMinStock");
-
-  let products = loadProducts();
-  let productToDelete = null;
-
-
-  // -----------------------------
-  // Storage
-  // -----------------------------
-
-  function loadProducts() {
-
-    const saved = localStorage.getItem(STORAGE_KEY);
-
-    if (!saved) {
-      localStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify(defaultProducts)
-      );
-
-      return [...defaultProducts];
-    }
-
-    try {
-      return JSON.parse(saved);
-    } catch (error) {
-      console.error("Invalid product storage:", error);
-
-      localStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify(defaultProducts)
-      );
-
-      return [...defaultProducts];
-    }
+  function money(value) { return '₹' + Number(value || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+  function stockStatus(product) {
+    if (product.stock === 0) return { label: 'Out of stock', className: 'status-out' };
+    if (product.stock <= product.minStock) return { label: 'Low stock', className: 'status-low' };
+    return { label: 'In stock', className: 'status-in' };
   }
-
-
-  function saveProducts() {
-
-    localStorage.setItem(
-      STORAGE_KEY,
-      JSON.stringify(products)
-    );
-
+  function load() {
+    errorBox.classList.add('hidden');
+    return SmartBillAPI.get('/api/products').then(function (data) { products = Array.isArray(data.products) ? data.products : []; render(); });
   }
-
-
-  // -----------------------------
-  // Stock status
-  // -----------------------------
-
-  function getStockStatus(product) {
-
-    if (product.initialStock <= 0) {
-      return {
-        label: "No Stock",
-        className: "danger-badge"
-      };
+  function updateSummary() {
+    var totalStock = products.reduce(function (sum, product) { return sum + Number(product.stock || 0); }, 0);
+    var lowStock = products.filter(function (product) { return Number(product.stock || 0) > 0 && product.stock <= product.minStock; }).length;
+    var outOfStock = products.filter(function (product) { return Number(product.stock || 0) === 0; }).length;
+    var inStock = Math.max(products.length - lowStock, 0);
+    var totalProducts = products.length;
+    function percentage(value) {
+      return totalProducts ? Math.round((value / totalProducts) * 100) : 0;
     }
-
-    const percentage =
-      (product.stock / product.initialStock) * 100;
-
-
-    if (percentage < 30) {
-      return {
-        label: "High Alert",
-        className: "danger-badge"
-      };
-    }
-
-
-    if (percentage < 40) {
-      return {
-        label: "Warning",
-        className: "warning-badge"
-      };
-    }
-
-
-    return {
-      label: "Normal",
-      className: "success-badge"
-    };
-
+    document.getElementById('totalProductsCount').textContent = products.length.toLocaleString('en-IN');
+    document.getElementById('totalStockCount').textContent = totalStock.toLocaleString('en-IN');
+    document.getElementById('lowStockCount').textContent = lowStock.toLocaleString('en-IN');
+    document.getElementById('outStockCount').textContent = outOfStock.toLocaleString('en-IN');
+    document.getElementById('totalProductsPercent').textContent = '100% of catalogue';
+    document.getElementById('inStockPercent').textContent = percentage(inStock) + '% of catalogue';
+    document.getElementById('lowStockPercent').textContent = percentage(lowStock) + '% of catalogue';
+    document.getElementById('outStockPercent').textContent = percentage(outOfStock) + '% of catalogue';
   }
-
-
-  // -----------------------------
-  // Render products
-  // -----------------------------
-
-  function renderProducts() {
-
-    const searchTerm =
-      searchInput.value.trim().toLowerCase();
-
-    const selectedCategory =
-      categoryFilter.value;
-
-
-    const filteredProducts = products.filter(product => {
-
-      const matchesSearch =
-        product.name.toLowerCase().includes(searchTerm) ||
-        product.category.toLowerCase().includes(searchTerm);
-
-      const matchesCategory =
-        selectedCategory === "all" ||
-        product.category === selectedCategory;
-
-      return matchesSearch && matchesCategory;
-
+  function setCategories(categories, selected) {
+    categoryFilter.replaceChildren(new Option('All Categories', 'all'));
+    categories.forEach(function (category) { categoryFilter.add(new Option(category, category)); });
+    categoryFilter.value = categories.indexOf(selected) !== -1 ? selected : 'all';
+    categoryPills.replaceChildren();
+    [{ label: 'All', value: 'all' }].concat(categories.map(function (category) { return { label: category, value: category }; })).forEach(function (item) {
+      var button = document.createElement('button');
+      button.type = 'button'; button.className = 'category-pill' + (item.value === categoryFilter.value ? ' active' : '');
+      button.textContent = item.label; button.dataset.category = item.value;
+      categoryPills.appendChild(button);
     });
-
-
-    productTable.innerHTML = "";
-
-
-    if (filteredProducts.length === 0) {
-
-      productTable.innerHTML = `
-        <tr>
-          <td colspan="8" class="empty-state">
-            No products found.
-          </td>
-        </tr>
-      `;
-
+    var categorySuggestions = document.getElementById('categorySuggestions');
+    var productNameSuggestions = document.getElementById('productNameSuggestions');
+    categorySuggestions.replaceChildren(); productNameSuggestions.replaceChildren();
+    categories.forEach(function (category) { categorySuggestions.appendChild(new Option(category)); });
+    products.forEach(function (product) { productNameSuggestions.appendChild(new Option(product.name)); });
+  }
+  function actionButton(label, className, id, name) {
+    var button = document.createElement('button');
+    button.type = 'button'; button.className = 'product-action ' + className; button.dataset.id = id;
+    if (name !== undefined) button.dataset.name = name;
+    button.textContent = label; return button;
+  }
+  function productCell(product) {
+    var cell = document.createElement('td');
+    var name = document.createElement('strong'); name.textContent = product.name;
+    cell.appendChild(name); return cell;
+  }
+  function textCell(value, className) {
+    var cell = document.createElement('td'); if (className) cell.className = className; cell.textContent = value; return cell;
+  }
+  function renderTable(filtered) {
+    tableBody.replaceChildren();
+    filtered.forEach(function (product, index) {
+      var status = stockStatus(product); var row = document.createElement('tr');
+      row.appendChild(textCell(index + 1, 'products-index'));
+      row.appendChild(productCell(product)); row.appendChild(textCell(product.category));
+      row.appendChild(textCell(money(product.price), 'products-price'));
+      row.appendChild(textCell(product.stock + ' ' + product.unit));
+      var statusCell = document.createElement('td'); var badge = document.createElement('span'); badge.className = 'product-status ' + status.className; badge.textContent = status.label; statusCell.appendChild(badge); row.appendChild(statusCell);
+      var actionCell = document.createElement('td'); actionCell.className = 'text-right product-actions'; actionCell.append(actionButton('Edit', 'edit-btn', product.id), actionButton('Delete', 'delete-btn', product.id, product.name)); row.appendChild(actionCell);
+      tableBody.appendChild(row);
+    });
+  }
+  function renderMobileCards(filtered) {
+    mobileList.replaceChildren();
+    filtered.forEach(function (product) {
+      var status = stockStatus(product); var card = document.createElement('article'); card.className = 'product-mobile-card';
+      var top = document.createElement('div'); top.className = 'product-mobile-top'; var info = document.createElement('div');
+      var name = document.createElement('h3'); name.textContent = product.name; var category = document.createElement('p'); category.textContent = product.category;
+      info.append(name, category); var badge = document.createElement('span'); badge.className = 'product-status ' + status.className; badge.textContent = status.label; top.append(info, badge);
+      var meta = document.createElement('div'); meta.className = 'product-mobile-meta'; meta.textContent = money(product.price) + '  ·  ' + product.stock + ' ' + product.unit;
+      var actions = document.createElement('div'); actions.className = 'product-mobile-actions'; actions.append(actionButton('Edit', 'edit-btn', product.id), actionButton('Delete', 'delete-btn', product.id, product.name));
+      card.append(top, meta, actions); mobileList.appendChild(card);
+    });
+  }
+  function render() {
+    var query = (searchInput.value || '').trim().toLowerCase();
+    var category = categoryFilter.value;
+    var filtered = products.filter(function (p) {
+      return (!query || p.name.toLowerCase().indexOf(query) !== -1 || p.category.toLowerCase().indexOf(query) !== -1) &&
+        (category === 'all' || p.category === category);
+    });
+    var categories = products.map(function (p) { return p.category; }).filter(function (v, i, a) { return a.indexOf(v) === i; }).sort();
+    setCategories(categories, category);
+    updateSummary();
+    document.getElementById('productsResultCount').textContent = filtered.length + (filtered.length === 1 ? ' product' : ' products');
+    if (!filtered.length) {
+      tableBody.replaceChildren(); mobileList.replaceChildren();
+      emptyState.classList.remove('hidden');
       return;
     }
-
-
-    filteredProducts.forEach((product, index) => {
-
-      const status = getStockStatus(product);
-
-
-      const row = document.createElement("tr");
-
-      row.innerHTML = `
-        <td>${index + 1}</td>
-
-        <td>
-          <strong>${escapeHtml(product.name)}</strong>
-        </td>
-
-        <td>${escapeHtml(product.category)}</td>
-
-        <td>${product.unit}</td>
-
-        <td>₹${Number(product.price).toFixed(2)}</td>
-
-        <td>
-          ${Number(product.stock)} ${product.unit}
-        </td>
-
-        <td>
-          <span class="badge ${status.className}">
-            ${status.label}
-          </span>
-        </td>
-
-        <td>
-
-          <button
-            class="icon-action"
-            data-action="edit"
-            data-id="${product.id}"
-            title="Edit product"
-          >
-            ✎
-          </button>
-
-          <button
-            class="icon-action danger-action"
-            data-action="delete"
-            data-id="${product.id}"
-            title="Delete product"
-          >
-            ⌫
-          </button>
-
-        </td>
-      `;
-
-
-      productTable.appendChild(row);
-
-    });
-
+    emptyState.classList.add('hidden');
+    renderTable(filtered); renderMobileCards(filtered);
   }
-
-
-  // -----------------------------
-  // Category filter
-  // -----------------------------
-
-  function renderCategories() {
-
-    const categories = [
-      ...new Set(
-        products.map(product => product.category)
-      )
-    ].sort();
-
-
-    const currentValue = categoryFilter.value;
-
-
-    categoryFilter.innerHTML = `
-      <option value="all">All Categories</option>
-    `;
-
-
-    categories.forEach(category => {
-
-      const option = document.createElement("option");
-
-      option.value = category;
-      option.textContent = category;
-
-      categoryFilter.appendChild(option);
-
-    });
-
-
-    if (
-      categories.includes(currentValue)
-    ) {
-      categoryFilter.value = currentValue;
-    }
-
+  function formData(prefix) {
+    return { name: document.getElementById(prefix + 'Name').value.trim(), category: document.getElementById(prefix + 'Category').value.trim(),
+      unit: document.getElementById(prefix + 'Unit').value, price: parseFloat(document.getElementById(prefix + 'Price').value),
+      stock: parseFloat(document.getElementById(prefix + 'Stock').value), minStock: parseFloat(document.getElementById(prefix + 'MinStock').value) };
   }
-
-
-  // -----------------------------
-  // Modal
-  // -----------------------------
-
-  function openAddModal() {
-
-    form.reset();
-
-    productId.value = "";
-
-    productUnit.value = "kg";
-
-    modalTitle.textContent = "Add Product";
-
-    document.getElementById("saveProductBtn").textContent =
-      "Save Product";
-
-    modal.classList.remove("hidden");
-
-    productName.focus();
-
-  }
-
-
-  function openEditModal(id) {
-
-    const product =
-      products.find(item => item.id === id);
-
-    if (!product) return;
-
-
-    productId.value = product.id;
-
-    productName.value = product.name;
-    productCategory.value = product.category;
-    productUnit.value = product.unit;
-    productPrice.value = product.price;
-    productInitialStock.value = product.initialStock;
-    productStock.value = product.stock;
-    productMinStock.value = product.minStock;
-
-
-    modalTitle.textContent = "Edit Product";
-
-    document.getElementById("saveProductBtn").textContent =
-      "Update Product";
-
-
-    modal.classList.remove("hidden");
-
-  }
-
-
-  function closeProductModal() {
-
-    modal.classList.add("hidden");
-
-  }
-
-
-  // -----------------------------
-  // Save product
-  // -----------------------------
-
-  form.addEventListener("submit", event => {
-
+  searchInput.addEventListener('input', render);
+  categoryFilter.addEventListener('change', render);
+  categoryPills.addEventListener('click', function (event) { var pill = event.target.closest('.category-pill'); if (!pill) return; categoryFilter.value = pill.dataset.category; render(); });
+  function openAddModal() { document.getElementById('addProductForm').reset(); addModal.classList.remove('hidden'); }
+  document.getElementById('addProductBtn').addEventListener('click', openAddModal);
+  document.getElementById('emptyAddProductBtn').addEventListener('click', openAddModal);
+  document.getElementById('addProductForm').addEventListener('submit', function (event) {
     event.preventDefault();
-
-
-    const name =
-      productName.value.trim();
-
-    const category =
-      productCategory.value.trim();
-
-    const unit =
-      productUnit.value;
-
-    const price =
-      Number(productPrice.value);
-
-    const initialStock =
-      Number(productInitialStock.value);
-
-    const stock =
-      Number(productStock.value);
-
-    const minStock =
-      Number(productMinStock.value);
-
-
-    // Validation
-
-    if (!name) {
-      showToast("Product name is required.", true);
-      return;
-    }
-
-
-    if (!category) {
-      showToast("Category is required.", true);
-      return;
-    }
-
-
-    if (!Number.isFinite(price) || price < 0) {
-      showToast("Price cannot be negative.", true);
-      return;
-    }
-
-
-    if (!Number.isFinite(initialStock) || initialStock < 0) {
-      showToast("Initial stock cannot be negative.", true);
-      return;
-    }
-
-
-    if (!Number.isFinite(stock) || stock < 0) {
-      showToast("Current stock cannot be negative.", true);
-      return;
-    }
-
-
-    if (!Number.isFinite(minStock) || minStock < 0) {
-      showToast("Minimum stock cannot be negative.", true);
-      return;
-    }
-
-
-    if (stock > initialStock) {
-      showToast(
-        "Current stock cannot exceed initial stock.",
-        true
-      );
-      return;
-    }
-
-
-    const editingId =
-      Number(productId.value);
-
-
-    if (editingId) {
-
-      const product =
-        products.find(item => item.id === editingId);
-
-
-      if (!product) {
-        showToast("Product not found.", true);
-        return;
-      }
-
-
-      product.name = name;
-      product.category = category;
-      product.unit = unit;
-      product.price = price;
-      product.initialStock = initialStock;
-      product.stock = stock;
-      product.minStock = minStock;
-
-
-      showToast("Product updated successfully.");
-
-    } else {
-
-      const newProduct = {
-
-        id: Date.now(),
-
-        name,
-        category,
-        unit,
-        price,
-        initialStock,
-        stock,
-        minStock
-
-      };
-
-
-      products.push(newProduct);
-
-      showToast("Product added successfully.");
-
-    }
-
-
-    saveProducts();
-
-    renderCategories();
-    renderProducts();
-
-    closeProductModal();
-
+    SmartBillAPI.post('/api/products', formData('add')).then(function () { addModal.classList.add('hidden'); return load(); }).catch(function (error) { alert(error.message); });
   });
-
-
-  // -----------------------------
-  // Edit / Delete
-  // -----------------------------
-
-  productTable.addEventListener("click", event => {
-
-    const button =
-      event.target.closest("button[data-action]");
-
-    if (!button) return;
-
-
-    const id =
-      Number(button.dataset.id);
-
-    const action =
-      button.dataset.action;
-
-
-    if (action === "edit") {
-
-      openEditModal(id);
-
-    }
-
-
-    if (action === "delete") {
-
-      openDeleteModal(id);
-
-    }
-
+  document.getElementById('editProductForm').addEventListener('submit', function (event) {
+    event.preventDefault();
+    var id = document.getElementById('editId').value;
+    SmartBillAPI.put('/api/products/' + id, formData('edit')).then(function () { editModal.classList.add('hidden'); return load(); }).catch(function (error) { alert(error.message); });
   });
-
-
-  // -----------------------------
-  // Delete
-  // -----------------------------
-
-  function openDeleteModal(id) {
-
-    const product =
-      products.find(item => item.id === id);
-
-    if (!product) return;
-
-
-    productToDelete = id;
-
-
-    document.getElementById("deleteMessage").textContent =
-      `Delete "${product.name}" from products?`;
-
-
-    deleteModal.classList.remove("hidden");
-
-  }
-
-
-  function closeDeleteModal() {
-
-    productToDelete = null;
-
-    deleteModal.classList.add("hidden");
-
-  }
-
-
-  document
-    .getElementById("confirmDelete")
-    .addEventListener("click", () => {
-
-      if (!productToDelete) return;
-
-
-      products =
-        products.filter(
-          product => product.id !== productToDelete
-        );
-
-
-      saveProducts();
-
-      renderCategories();
-      renderProducts();
-
-      closeDeleteModal();
-
-      showToast("Product deleted.");
-
-    });
-
-
-  // -----------------------------
-  // Search / filter
-  // -----------------------------
-
-  searchInput.addEventListener(
-    "input",
-    renderProducts
-  );
-
-
-  categoryFilter.addEventListener(
-    "change",
-    renderProducts
-  );
-
-
-  // -----------------------------
-  // Buttons
-  // -----------------------------
-
-  document
-    .getElementById("addProductBtn")
-    .addEventListener(
-      "click",
-      openAddModal
-    );
-
-
-  document
-    .getElementById("closeProductModal")
-    .addEventListener(
-      "click",
-      closeProductModal
-    );
-
-
-  document
-    .getElementById("cancelProductModal")
-    .addEventListener(
-      "click",
-      closeProductModal
-    );
-
-
-  document
-    .getElementById("closeDeleteModal")
-    .addEventListener(
-      "click",
-      closeDeleteModal
-    );
-
-
-  document
-    .getElementById("cancelDelete")
-    .addEventListener(
-      "click",
-      closeDeleteModal
-    );
-
-
-  // -----------------------------
-  // Toast
-  // -----------------------------
-
-  let toastTimer;
-
-
-  function showToast(message, error = false) {
-
-    const toast =
-      document.getElementById("productToast");
-
-
-    toast.textContent = message;
-
-    toast.classList.remove(
-      "hidden",
-      "toast-error"
-    );
-
-
-    if (error) {
-      toast.classList.add("toast-error");
+  function handleProductAction(event) {
+    var edit = event.target.closest('.edit-btn');
+    var del = event.target.closest('.delete-btn');
+    if (edit) {
+      var p = products.find(function (item) { return item.id === Number(edit.dataset.id); });
+      if (!p) return;
+      ['Name', 'Category', 'Unit', 'Price', 'Stock', 'MinStock'].forEach(function (key) { document.getElementById('edit' + key).value = p[key.charAt(0).toLowerCase() + key.slice(1)] ?? p[key]; });
+      document.getElementById('editId').value = p.id;
+      editModal.classList.remove('hidden');
     }
-
-
-    clearTimeout(toastTimer);
-
-
-    toastTimer = setTimeout(() => {
-
-      toast.classList.add("hidden");
-
-    }, 2500);
-
+    if (del) { deleteTargetId = del.dataset.id; document.getElementById('deleteProductName').textContent = del.dataset.name; deleteModal.classList.remove('hidden'); }
   }
-
-
-  // -----------------------------
-  // Security helper for table text
-  // -----------------------------
-
-  function escapeHtml(value) {
-
-    return String(value)
-      .replaceAll("&", "&amp;")
-      .replaceAll("<", "&lt;")
-      .replaceAll(">", "&gt;")
-      .replaceAll('"', "&quot;")
-      .replaceAll("'", "&#039;");
-
-  }
-
-
-  // Initial render
-
-  renderCategories();
-  renderProducts();
-
+  tableBody.addEventListener('click', handleProductAction);
+  mobileList.addEventListener('click', handleProductAction);
+  document.getElementById('confirmDeleteBtn').addEventListener('click', function () {
+    SmartBillAPI.remove('/api/products/' + deleteTargetId).then(function () { deleteModal.classList.add('hidden'); return load(); }).catch(function (error) { alert(error.message); });
+  });
+  document.querySelectorAll('[data-close]').forEach(function (button) { button.addEventListener('click', function () { document.getElementById(button.dataset.close).classList.add('hidden'); }); });
+  load().catch(function (error) { errorBox.textContent = error.message || 'Products could not be loaded. Please try again.'; errorBox.classList.remove('hidden'); });
 });

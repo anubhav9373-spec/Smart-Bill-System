@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#102033">
+  <link rel="icon" href="{{ url_for('static', filename='assets/smartbill-favicon.png', v='20261028-new-logo') }}" type="image/png">
+  <title>Create your shop — SmartBill</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app-redesign.css') }}?v=20261028-logo-variants">
+</head>
+<body class="auth-page">
+  <main class="auth-card">
+    <img src="{{ url_for('static', filename='assets/smartbill-logo-light-bg.png', v='20261028-new-logo') }}" alt="SmartBill" class="auth-logo">
+    <div class="auth-intro">
+      <p class="eyebrow">{{ 'Create your account' if registration else 'First-time setup' }}</p>
+      <h1>{{ 'Start using SmartBill' if registration else 'Create your workspace' }}</h1>
+      <p class="auth-subtitle">Set up your shop once, then start billing in minutes.</p>
+    </div>
+    {% if error %}<div class="form-error" role="alert">{{ error }}</div>{% endif %}
+    <form method="post" class="auth-form">
+      <input type="hidden" name="_csrf" value="{{ csrf_token }}">
+      <div class="auth-field"><label for="shop_name">Shop name</label><input id="shop_name" name="shop_name" required maxlength="160" autocomplete="organization"></div>
+      <div class="auth-field"><label for="name">Owner name</label><input id="name" name="name" required maxlength="120" autocomplete="name"></div>
+      <div class="auth-field"><label for="email">Owner email</label><input id="email" name="email" type="email" required autocomplete="email"></div>
+      <div class="auth-field">
+        <div class="auth-label-row"><label for="password">Password</label><span class="auth-hint">10+ characters</span></div>
+        <div class="auth-password-field"><input id="password" name="password" type="password" minlength="10" required autocomplete="new-password"><button type="button" class="auth-toggle-password" data-password-toggle="password">Show</button></div>
+      </div>
+      <button class="btn btn-primary btn-block-custom auth-submit" type="submit">{{ 'Create account' if registration else 'Create workspace' }} <span aria-hidden="true">→</span></button>
+    </form>
+    <p class="auth-footer">Already have an account? <a href="{{ url_for('login') }}">Sign in <span aria-hidden="true">→</span></a></p>
+  </main>
+  <script>
+    document.querySelectorAll('[data-password-toggle]').forEach(function (button) {
+      button.addEventListener('click', function () {
+        var input = document.getElementById(button.getAttribute('data-password-toggle'));
+        var visible = input.type === 'text';
+        input.type = visible ? 'password' : 'text';
+        button.textContent = visible ? 'Show' : 'Hide';
+      });
+    });
+    var password = document.getElementById('password');
+    var hint = document.querySelector('.auth-hint');
+    if (password && hint) {
+      password.addEventListener('input', function () {
+        hint.classList.toggle('is-ready', password.value.length >= 10);
+      });
+    }
+  </script>
+</body>
+</html>

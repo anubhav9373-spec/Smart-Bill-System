@@ -1,245 +1,149 @@
 {% extends "base.html" %}
-
-{% block title %}Dashboard | SmartBill{% endblock %}
+{% block title %}Dashboard — SmartBill{% endblock %}
 {% block mobile_title %}Dashboard{% endblock %}
 
 {% block content %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<section class="page-header">
+<div class="dashboard-page">
 
+  <div class="page-header dash-header">
     <div>
-        <p class="eyebrow">OVERVIEW</p>
+      <span class="badge badge-purple">COMMAND CENTER</span>
+      <h1 class="page-title">Dashboard</h1>
+      <p class="page-sub" id="dashGreeting">Overview of your retail business performance.</p>
+    </div>
+    <div class="dash-header-actions">
+      <a href="/billing" class="btn btn-primary" style="padding: 12px 20px; font-weight: 700;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 6px;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        New Bill
+      </a>
+    </div>
+  </div>
 
-        <h1>Dashboard</h1>
-
-        <p class="page-description">
-            Track your store's sales and product activity.
-        </p>
+  <div id="dashboardError" class="dashboard-state hidden" role="alert"></div>
+  <div class="dash-kpi-grid" aria-label="Business summary">
+    <div class="card kpi-card primary-kpi">
+      <div class="kpi-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+      </div>
+      <div class="kpi-details">
+        <span class="kpi-label">Today's Sales</span>
+        <strong class="kpi-value" id="dashTodaySales">₹0</strong>
+      </div>
+      <span class="kpi-bars" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
     </div>
 
-</section>
+    <div class="card kpi-card">
+      <div class="kpi-icon" style="background: #e0f2fe; color: #2563eb;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      </div>
+      <div class="kpi-details">
+        <span class="kpi-label">Total Sales (All Time)</span>
+        <strong class="kpi-value" id="dashTotalSales">₹0</strong>
+      </div>
+      <span class="kpi-bars" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+    </div>
 
+    <div class="card kpi-card">
+      <div class="kpi-icon" style="background: #f3e8ff; color: #7c3aed;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/></svg>
+      </div>
+      <div class="kpi-details">
+        <span class="kpi-label">Total Bills</span>
+        <strong class="kpi-value" id="dashTotalBills">0</strong>
+      </div>
+      <span class="kpi-bars" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+    </div>
 
-<!-- Summary Metrics -->
+    <div class="card kpi-card">
+      <div class="kpi-icon" style="background: #fee2e2; color: #ef4444;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      </div>
+      <div class="kpi-details">
+        <span class="kpi-label">Low Stock Alerts</span>
+        <strong class="kpi-value" id="dashLowStock" style="color: #ef4444;">0</strong>
+      </div>
+      <span class="kpi-bars" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+    </div>
+  </div>
 
-<section class="dashboard-metrics">
-
-    <article class="dashboard-metric-card">
-
-        <div class="metric-icon">
-            ₹
-        </div>
-
+  <div class="dash-main-grid">
+    <div class="card chart-card dash-sales-card">
+      <div class="dash-section-head">
         <div>
-            <span class="metric-label">
-                Today's Sales
-            </span>
-
-            <strong id="todaySales">
-                ₹0.00
-            </strong>
+          <span class="dash-section-kicker">PERFORMANCE</span>
+          <h2>Sales Overview</h2>
         </div>
-
-    </article>
-
-
-    <article class="dashboard-metric-card">
-
-        <div class="metric-icon">
-            #
-        </div>
-
-        <div>
-            <span class="metric-label">
-                Total Bills
-            </span>
-
-            <strong id="totalBills">
-                0
-            </strong>
-        </div>
-
-    </article>
-
-
-    <article class="dashboard-metric-card">
-
-        <div class="metric-icon">
-            ▦
-        </div>
-
-        <div>
-            <span class="metric-label">
-                Total Products
-            </span>
-
-            <strong id="totalProducts">
-                0
-            </strong>
-        </div>
-
-    </article>
-
-
-    <article class="dashboard-metric-card">
-
-        <div class="metric-icon warning">
-            !
-        </div>
-
-        <div>
-            <span class="metric-label">
-                Low Stock Items
-            </span>
-
-            <strong id="lowStockItems">
-                0
-            </strong>
-        </div>
-
-    </article>
-
-</section>
-
-
-<!-- Main Dashboard Grid -->
-
-<section class="dashboard-main-grid">
-
-
-    <!-- Sales Trend -->
-
-    <article class="card dashboard-chart-card">
-
-        <div class="section-heading">
-
-            <div>
-                <h2>Sales Trend</h2>
-
-                <p>
-                    Sales activity over the last 7 days.
-                </p>
-            </div>
-
-        </div>
-
-        <div class="dashboard-chart-container">
-
-            <canvas id="salesTrendChart"></canvas>
-
-        </div>
-
-    </article>
-
-
-    <!-- Top Products -->
-
-    <article class="card dashboard-top-products">
-
-        <div class="section-heading">
-
-            <div>
-                <h2>Top Selling Products</h2>
-
-                <p>
-                    Products sold by quantity.
-                </p>
-            </div>
-
-        </div>
-
-        <div id="topProductsList">
-
-            <!-- Generated by JavaScript -->
-
-        </div>
-
-    </article>
-
-</section>
-
-
-<!-- Bottom Dashboard Grid -->
-
-<section class="dashboard-bottom-grid">
-
-
-    <!-- Recent Transactions -->
-
-    <article class="card">
-
-        <div class="section-heading">
-
-            <div>
-                <h2>Recent Transactions</h2>
-
-                <p>
-                    Latest generated bills.
-                </p>
-            </div>
-
-            <a
-                href="/sales"
-                class="text-link"
-            >
-                View All
-            </a>
-
-        </div>
-
-
-        <div class="recent-transactions">
-
-            <div id="recentTransactions">
-
-                <!-- Generated by JavaScript -->
-
-            </div>
-
-        </div>
-
-    </article>
-
-
-    <!-- Smart Insights -->
-
-    <article class="card">
-
-        <div class="section-heading">
-
-            <div>
-                <h2>Smart Insights</h2>
-
-                <p>
-                    Rule-based business observations.
-                </p>
-            </div>
-
-        </div>
-
-
-        <div id="smartInsights">
-
-            <!-- Generated by JavaScript -->
-
-        </div>
-
-    </article>
-
-</section>
-
-
+        <select id="salesRangeFilter" class="dashboard-range" aria-label="Sales overview range">
+          <option value="7">Last 7 Days</option>
+          <option value="30">Last 30 Days</option>
+          <option value="90">Last 90 Days</option>
+        </select>
+      </div>
+      <div class="chart-wrapper">
+        <canvas id="dashSalesChart"></canvas>
+        <div id="salesChartEmpty" class="dashboard-empty hidden">No sales recorded in this period.</div>
+      </div>
+    </div>
+    <div class="dash-alert-grid">
+      <a class="dash-alert-card alert-low" href="/products">
+        <span class="dash-alert-icon">!</span>
+        <span><small>Low Stock</small><strong id="dashLowStockAlert">0</strong></span>
+        <span class="dash-alert-arrow">›</span>
+      </a>
+      <a class="dash-alert-card alert-out" href="/products">
+        <span class="dash-alert-icon">×</span>
+        <span><small>Out of Stock</small><strong id="dashOutStock">0</strong></span>
+        <span class="dash-alert-arrow">›</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="dash-tables-row">
+    <div class="card table-card dash-list-card">
+      <div class="dash-section-head compact">
+        <h2>Top Selling Products</h2>
+        <a href="/products">View All <span>›</span></a>
+      </div>
+      <div class="dashboard-list-wrap">
+        <table class="data-table dash-table">
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th class="text-center">Sold</th>
+              <th class="text-right">Revenue</th>
+            </tr>
+          </thead>
+          <tbody id="dashTopProductsBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card table-card dash-list-card">
+      <div class="dash-section-head compact">
+        <h2>Recent Bills</h2>
+        <a href="/sales">View All <span>›</span></a>
+      </div>
+      <div class="dashboard-list-wrap">
+        <table class="data-table dash-table">
+          <thead>
+            <tr>
+              <th>Invoice</th>
+              <th>Date</th>
+              <th class="text-right">Total</th>
+            </tr>
+          </thead>
+          <tbody id="dashRecentBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div id="dashboardEmpty" class="dashboard-empty-card hidden">No dashboard data available yet.</div>
+
+</div>
 {% endblock %}
 
-
-{% block page_script %}
-
-<!-- Chart.js -->
-
-<script
-    src="https://cdn.jsdelivr.net/npm/chart.js">
-</script>
-
-<script src="/static/js/dashboard.js"></script>
-
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/dashboard.js') }}?v=20261027-dashboard-kpi"></script>
 {% endblock %}

@@ -1,357 +1,119 @@
 {% extends "base.html" %}
-
-{% block title %}New Bill | SmartBill{% endblock %}
+{% block title %}New Bill — SmartBill{% endblock %}
 {% block mobile_title %}New Bill{% endblock %}
 
 {% block content %}
-
-<section class="page-header">
+<div class="billing-page">
+  <div class="billing-intro">
     <div>
-        <p class="eyebrow">Checkout</p>
-        <h1>New Bill</h1>
-        <p class="page-description">
-            Create a bill using existing products and prices.
-        </p>
+      <span class="billing-kicker">CHECKOUT</span>
+      <h1 class="page-title">New Bill</h1>
+      <p class="page-sub">Create a bill using existing products and prices.</p>
     </div>
+  </div>
 
-    <div class="invoice-number" id="invoiceNumber">
-        Invoice: -
+  <section class="billing-card customer-card">
+    <div class="form-group" style="margin-bottom: 0;">
+      <label for="custName">Customer Name</label>
+      <input type="text" id="custName" class="form-control cust-name-input" value="User" onclick="this.select()" autocomplete="off">
     </div>
-</section>
+  </section>
 
-
-<!-- Bill Customer -->
-
-<section class="card bill-info-card">
-
-    <div class="bill-info-field">
-
-        <label for="billCustomerName">
-            Bill Name
-        </label>
-
-        <input
-            type="text"
-            id="billCustomerName"
-            value="User"
-            maxlength="100"
-            autocomplete="off"
-            placeholder="Enter customer name"
-        >
-
-    </div>
-
-</section>
-
-
-<div class="billing-layout">
-
-    <!-- LEFT SIDE -->
-
-    <section class="card">
-
-        <div class="section-heading">
-            <div>
-                <h2>Add Product</h2>
-                <p>
-                    Unit and price are inherited from the selected product.
-                </p>
-            </div>
-        </div>
-
-
-        <!-- Product Search -->
+  <div class="billing-split-layout">
+    <div class="billing-left">
+      <section class="billing-card product-card">
+        <h3 class="box-heading">Add Product</h3>
+        <p class="text-muted box-sub">Search from inventory to add to bill.</p>
 
         <div class="form-group">
-
-            <label for="productSearch">
-                Search Product
-            </label>
-
-            <input
-                type="search"
-                id="productSearch"
-                placeholder="Search by product name..."
-                autocomplete="off"
-            >
-
-            <div
-                id="productSuggestions"
-                class="product-suggestions hidden"
-            ></div>
-
+          <label for="searchProduct">Search Product</label>
+          <input type="text" id="searchProduct" class="form-control" placeholder="Type to search..." list="productList" autocomplete="off">
+          <datalist id="productList"></datalist>
         </div>
-
-
-        <!-- Selected Product -->
 
         <div class="form-group">
-
-            <label>Selected Product</label>
-
-            <div
-                id="selectedProduct"
-                class="selected-product"
-            >
-                No product selected
+          <label>Selected Product</label>
+          <div class="selected-product-card">
+            <span class="selected-product-icon" aria-hidden="true">▣</span>
+            <div class="selected-product-copy">
+              <strong id="selectedProductName">No product selected</strong>
+              <span id="selectedProductPrice">Select a product to see its price</span>
             </div>
-
+            <span id="selectedProductStock" class="stock-badge">-</span>
+          </div>
         </div>
 
-
-        <div class="billing-fields">
-
-            <div class="form-group">
-
-                <label>Available Stock</label>
-
-                <div
-                    id="availableStock"
-                    class="readonly-field"
-                >
-                    -
-                </div>
-
-            </div>
-
-
-            <div class="form-group">
-
-                <label for="productQuantity">
-                    Quantity
-                </label>
-
-                <input
-                    type="number"
-                    id="productQuantity"
-                    min="0.01"
-                    step="0.01"
-                    value="1"
-                >
-
-            </div>
-
+        <div class="form-group quantity-group">
+          <label for="productQty">Quantity</label>
+          <div class="quantity-stepper">
+            <button type="button" id="decreaseQtyBtn" aria-label="Decrease quantity">−</button>
+            <input type="number" id="productQty" class="form-control" value="1" min="0.001" step="0.001" aria-label="Quantity">
+            <button type="button" id="increaseQtyBtn" aria-label="Increase quantity">+</button>
+          </div>
         </div>
 
+        <button type="button" id="addToBillBtn" class="btn btn-primary btn-block-custom">↠ Add to Bill</button>
+      </section>
 
-        <button
-            type="button"
-            class="button primary-button full-width"
-            id="addToCartBtn"
-        >
-            Add to Cart
-        </button>
-
-
-        <!-- Extra Item -->
-
-        <div class="billing-divider"></div>
-
-        <div class="section-heading">
-
-            <div>
-                <h2>Extra One-Time Item</h2>
-
-                <p>
-                    This item is only for the current bill.
-                </p>
-            </div>
-
-        </div>
-
+      <section class="billing-card extra-card">
+        <h3 class="box-heading">Extra Item</h3>
+        <p class="text-muted box-sub">One-time charge (e.g. Delivery).</p>
 
         <div class="form-group">
-
-            <label for="extraItemName">
-                Item Name
-            </label>
-
-            <input
-                type="text"
-                id="extraItemName"
-                placeholder="e.g. Delivery Charge"
-                maxlength="100"
-            >
-
+          <label for="extraName">Item Name</label>
+          <input type="text" id="extraName" class="form-control" placeholder="e.g. Delivery Charge" autocomplete="off">
         </div>
 
-
-        <div class="billing-fields">
-
-            <div class="form-group">
-
-                <label for="extraItemPrice">
-                    Price (₹)
-                </label>
-
-                <input
-                    type="number"
-                    id="extraItemPrice"
-                    min="0"
-                    step="0.01"
-                    placeholder="0.00"
-                >
-
-            </div>
-
-
-            <div class="form-group">
-
-                <label for="extraItemQuantity">
-                    Quantity
-                </label>
-
-                <input
-                    type="number"
-                    id="extraItemQuantity"
-                    min="0.01"
-                    step="0.01"
-                    value="1"
-                >
-
-            </div>
-
+        <div class="form-row">
+          <div class="form-group">
+            <label for="extraPrice">Price (₹)</label>
+            <input type="number" id="extraPrice" class="form-control" placeholder="0.00" min="0" step="0.01">
+          </div>
+          <div class="form-group">
+            <label for="extraQty">Quantity</label>
+            <input type="number" id="extraQty" class="form-control" value="1" min="0.001" step="0.001">
+          </div>
         </div>
 
+        <button type="button" id="addExtraBtn" class="btn btn-secondary btn-block-custom">Add Extra Charge</button>
+      </section>
+    </div>
 
-        <button
-            type="button"
-            class="button secondary-button full-width"
-            id="addExtraItemBtn"
-        >
-            Add Extra Item
-        </button>
-
-    </section>
-
-
-    <!-- RIGHT SIDE -->
-
-    <section class="card">
-
-        <div class="section-heading">
-
-            <div>
-                <h2>Cart Items</h2>
-
-                <p id="cartStatus">
-                    No items added.
-                </p>
-            </div>
-
-            <button
-                type="button"
-                class="button secondary-button"
-                id="clearCartBtn"
-            >
-                Clear Cart
-            </button>
-
+    <div class="billing-right">
+      <section class="billing-card cart-card">
+        <div class="cart-header">
+          <div>
+            <h3 class="box-heading">Current Bill</h3>
+            <p id="itemCountText" class="text-muted box-sub">No items added.</p>
+          </div>
+          <button type="button" id="clearCartBtn" class="btn-clear">Clear All</button>
         </div>
 
-
-        <div class="table-wrap">
-
-            <table>
-
-                <thead>
-
-                    <tr>
-                        <th>Product</th>
-                        <th>Qty</th>
-                        <th>Unit</th>
-                        <th>Unit Price</th>
-                        <th>Subtotal</th>
-                        <th>Action</th>
-                    </tr>
-
-                </thead>
-
-
-                <tbody id="cartTable">
-                </tbody>
-
-            </table>
-
+        <div class="cart-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>ITEM</th>
+                <th class="text-center" style="width: 50px;">QTY</th>
+                <th class="text-right" style="width: 80px;">RATE</th>
+                <th class="text-right" style="width: 90px;">TOTAL</th>
+                <th style="width: 36px;"></th>
+              </tr>
+            </thead>
+            <tbody id="cartTableBody"></tbody>
+          </table>
+          <div id="emptyCartMessage" class="empty-cart-msg">Cart is empty.</div>
         </div>
 
-
-        <div
-            id="emptyCart"
-            class="empty-state"
-        >
-            No items in cart.
-        </div>
-
-
-        <!-- Bill Summary -->
-
-        <div class="bill-summary">
-
-            <div class="summary-row">
-
-                <span>Subtotal</span>
-
-                <strong id="subtotal">
-                    ₹0.00
-                </strong>
-
-            </div>
-
-
-            <div class="summary-row">
-
-                <label for="discount">
-                    Discount (₹)
-                </label>
-
-                <input
-                    type="number"
-                    id="discount"
-                    min="0"
-                    step="0.01"
-                    value="0"
-                >
-
-            </div>
-
-
-            <div class="summary-row final-row">
-
-                <span>Final Total</span>
-
-                <strong id="finalTotal">
-                    ₹0.00
-                </strong>
-
-            </div>
-
-
-            <button
-                type="button"
-                class="button success-button full-width"
-                id="generateInvoiceBtn"
-            >
-                Generate Invoice
-            </button>
-
-        </div>
-
-    </section>
-
+        <div class="totals-section">
+          <div class="total-row"><span class="text-muted">Subtotal</span><strong id="subtotalDisplay">₹0.00</strong></div>
+          <div class="total-row align-center"><span class="text-muted">Discount (₹)</span><input type="number" id="discountInput" class="form-control text-right discount-input" value="0" min="0"></div>
+          <div class="total-row grand-total-row"><strong>Grand Total</strong><strong id="grandTotalDisplay" class="grand-total-val">₹0.00</strong></div>
+          <button type="button" id="generateInvoiceBtn" class="btn btn-primary btn-generate">Generate Invoice</button>
+        </section>
+      </div>
+    </div>
+  </div>
 </div>
-
-
-<div
-    id="billingToast"
-    class="product-toast hidden"
-></div>
-
 {% endblock %}
-
-
-{% block page_script %}
-
-<script src="/static/js/billing.js"></script>
-
-{% endblock %}
+{% block extra_js %}<script src="{{ url_for('static', filename='js/billing.js') }}"></script>{% endblock %}

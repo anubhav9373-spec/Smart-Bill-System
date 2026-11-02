@@ -1,198 +1,139 @@
 {% extends "base.html" %}
-
-{% block title %}Invoice | SmartBill{% endblock %}
+{% block title %}Invoice Ã¢â‚¬â€ SmartBill{% endblock %}
 {% block mobile_title %}Invoice{% endblock %}
 
 {% block content %}
+<div class="invoice-page">
 
-<section class="page-header invoice-page-header no-print">
-
+  <div class="page-header no-print" style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
     <div>
-        <p class="eyebrow">BILLING</p>
-        <h1>Invoice</h1>
-        <p class="page-description">
-            Generated bill ready for printing.
-        </p>
+      <span class="badge badge-purple" style="margin-bottom: 8px;">BILLING</span>
+      <h1 class="page-title">Invoice</h1>
+      <p class="page-sub">Generated bill ready for printing.</p>
     </div>
+    <div style="display: flex; gap: 12px;">
+      <button type="button" class="btn btn-secondary" id="shareQrBtn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 8px;"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+        Share QR
+      </button>
+      <button type="button" class="btn btn-primary" onclick="window.print()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 8px;"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></svg>
+        Print Receipt
+      </button>
+    </div>
+  </div>
 
-    <button
-        type="button"
-        class="button primary-button"
-        onclick="window.print()"
-    >
-        🖨 Print
+  <div class="pos-receipt-wrapper">
+    <div class="pos-receipt-card">
+      <div class="pos-header">
+        <img src="{{ url_for('static', filename='assets/smartbill-logo-light-bg.png', v='20261028-new-logo') }}" alt="SmartBill" class="invoice-logo">
+        <p class="pos-store-name" id="storeName"></p>
+        <p class="pos-sub" id="storeAddress"></p>
+        <p class="pos-phone" id="storePhone"></p>
+      </div>
+
+      <div class="pos-divider"></div>
+
+      <div class="pos-meta-grid">
+        <div class="pos-meta-row">
+          <span>Invoice No:</span>
+          <strong id="invNo">-</strong>
+        </div>
+        <div class="pos-meta-row">
+          <span>Date & Time:</span>
+          <strong id="invDate">-</strong>
+        </div>
+        <div class="pos-meta-row">
+          <span>Bill To:</span>
+          <strong id="invCust">-</strong>
+        </div>
+      </div>
+
+      <div class="pos-divider"></div>
+
+      <div class="pos-items-table">
+        <div class="pos-items-header">
+          <span class="col-name">ITEM</span>
+          <span class="col-qty">QTY</span>
+          <span class="col-rate">RATE</span>
+          <span class="col-amt">AMT</span>
+        </div>
+        <div id="invItems" class="pos-items-body"></div>
+      </div>
+
+      <div class="pos-divider"></div>
+
+      <div class="pos-totals-grid">
+        <div class="pos-total-row">
+          <span>Subtotal</span>
+          <span id="invSubtotal">Ã¢â€šÂ¹0.00</span>
+        </div>
+        <div class="pos-total-row">
+          <span>Discount</span>
+          <span id="invDiscount">Ã¢â€šÂ¹0.00</span>
+        </div>
+        <div class="pos-divider" style="margin: 6px 0;"></div>
+        <div class="pos-total-row pos-grand-total">
+          <span>TOTAL</span>
+          <span id="invTotal">Ã¢â€šÂ¹0.00</span>
+        </div>
+      </div>
+
+      <div class="pos-divider" style="margin-top: 16px;"></div>
+
+      <div class="pos-footer">
+        <p class="pos-thanks">Thank You! Visit Again</p>
+        <p class="pos-powered">Powered by SmartBill</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="no-print pos-back-wrap">
+    <button type="button" class="btn btn-secondary" onclick="goBack()" style="padding: 10px 24px; font-weight: 600;">
+      &larr; Go Back
     </button>
+  </div>
 
-</section>
+  <!-- ULTRA CLEAR INSTANT SCAN QR MODAL -->
+  <div id="shareQrModal" class="modal-overlay hidden">
+    <div class="modal-card" style="max-width: 360px; text-align: center; border-radius: 16px; padding: 24px;">
+      <div class="modal-header" style="margin-bottom: 8px; position: relative;">
+        <h3 style="width:100%; text-align:center; font-size: 18px; font-weight: 800;">Scan to View Bill</h3>
+        <button type="button" class="close-modal-btn" id="closeShareQrBtn" aria-label="Close" style="position: absolute; right: 0; top: 0;">&times;</button>
+      </div>
+      <p class="text-muted" style="font-size: 13px; margin-bottom: 16px;">
+        Scan with any phone camera, Paytm, or Google Pay.
+      </p>
 
+      <div style="display:flex; justify-content:center; padding: 16px; background:#fff; border-radius: 12px; border: 2px solid var(--primary-light);">
+        <canvas id="shareQrCanvas" width="240" height="240" style="display: block; margin: 0 auto;"></canvas>
+      </div>
 
-<div class="receipt-preview">
+      <p id="shareQrHint" style="font-size: 13px; margin-top: 14px; font-weight: 700; color: #10b981;">
+        Ã¢Å¡Â¡ Instant Scan Ready
+      </p>
 
-    <section class="thermal-receipt">
-
-        <!-- Store Header -->
-
-        <header class="receipt-header">
-
-            <div class="receipt-logo">
-                SB
-            </div>
-
-            <h2>SmartBill</h2>
-
-            <p class="receipt-subtitle">
-                Retail Billing System
-            </p>
-
-            <div class="receipt-store">
-                Sharma General Store
-            </div>
-
-            <p>
-                Simple Billing. Smarter Business.
-            </p>
-
-        </header>
-
-
-        <div class="receipt-divider">
-            --------------------------------
-        </div>
-
-
-        <!-- Invoice Information -->
-
-        <section class="receipt-info">
-
-            <div>
-                <span>Invoice No</span>
-                <strong id="invoiceNumber">-</strong>
-            </div>
-
-            <div>
-                <span>Date & Time</span>
-                <strong id="invoiceDate">-</strong>
-            </div>
-
-            <div>
-                <span>Bill To</span>
-                <strong id="customerName">User</strong>
-            </div>
-
-        </section>
-
-
-        <div class="receipt-divider">
-            --------------------------------
-        </div>
-
-
-        <!-- Items -->
-
-        <section class="receipt-items">
-
-            <div class="receipt-items-header">
-
-                <span class="item-name">
-                    ITEM
-                </span>
-
-                <span>
-                    QTY
-                </span>
-
-                <span>
-                    RATE
-                </span>
-
-                <span>
-                    AMOUNT
-                </span>
-
-            </div>
-
-
-            <div
-                id="invoiceItems"
-                class="receipt-items-body"
-            >
-            </div>
-
-        </section>
-
-
-        <div class="receipt-divider">
-            --------------------------------
-        </div>
-
-
-        <!-- Summary -->
-
-        <section class="receipt-summary">
-
-            <div>
-                <span>Subtotal</span>
-
-                <strong id="invoiceSubtotal">
-                    ₹0.00
-                </strong>
-            </div>
-
-
-            <div>
-                <span>Discount</span>
-
-                <strong id="invoiceDiscount">
-                    ₹0.00
-                </strong>
-            </div>
-
-
-            <div class="receipt-total">
-
-                <span>TOTAL</span>
-
-                <strong id="invoiceTotal">
-                    ₹0.00
-                </strong>
-
-            </div>
-
-        </section>
-
-
-        <div class="receipt-divider">
-            --------------------------------
-        </div>
-
-
-        <!-- Footer -->
-
-        <footer class="receipt-footer">
-
-            <strong>
-                Thank You!
-            </strong>
-
-            <span>
-                Visit Again
-            </span>
-
-            <small>
-                Powered by SmartBill
-            </small>
-
-        </footer>
-
-    </section>
+      <div style="display:flex; gap:10px; margin-top: 16px;">
+        <button type="button" class="btn btn-secondary" id="copyShareLinkBtn" style="flex:1;">Copy Link</button>
+        <button type="button" class="btn btn-primary" id="closeShareQrBtn2" style="flex:1;">Done</button>
+      </div>
+    </div>
+  </div>
 
 </div>
-
 {% endblock %}
 
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/qrious.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/invoice.js', v='20261027-timezone') }}"></script>
+<script>
+  function goBack() {
+    if (document.referrer && document.referrer.indexOf('sales') !== -1) {
+      window.location.href = '/sales';
+    } else {
+      window.location.href = '/billing';
+    }
+  }
 
-{% block page_script %}
-
-<script src="/static/js/invoice.js"></script>
-
+</script>
 {% endblock %}
