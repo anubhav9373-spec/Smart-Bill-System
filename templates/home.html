@@ -1,165 +1,843 @@
 {% extends "base.html" %}
 
-{% block title %}SmartBill — Simple Billing for Every Shop{% endblock %}
-{% block mobile_title %}Home{% endblock %}
+{% block title %}SmartBill — Zero-Cost Paperless Retail Invoicing & QR Billing{% endblock %}
+{% block mobile_title %}SmartBill{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}?v=20261103-elite">
 {% endblock %}
 
 {% block content %}
 <div class="public-page">
-  <header class="public-header">
-    <a class="public-brand" href="/" aria-label="SmartBill home">
-      <img src="{{ url_for('static', filename='assets/smartbill-logo-dark-bg.png', v='20261028-new-logo') }}" alt="SmartBill">
-    </a>
 
-    <nav class="public-desktop-nav" aria-label="Public navigation">
-      <a href="#how-it-works">How it works</a>
-      <a href="#features">Features</a>
-      <a href="#why-smartbill">Why SmartBill</a>
-    </nav>
+  <!-- ======================================================================
+       DESKTOP TOP NAVBAR (Stripe / Linear Quality with Clean Sign In / Sign Up)
+       ====================================================================== -->
+  <header class="public-header" id="publicHeader">
+    <div class="public-header-inner">
+      <a class="public-brand" href="/" aria-label="SmartBill Home">
+        <img src="{{ url_for('static', filename='assets/smartbill-logo-dark-bg.png') }}" alt="SmartBill Logo">
+      </a>
 
-    <div class="public-header-actions">
-      <a class="public-login-link" href="/login">Sign in</a>
-      <a class="public-header-cta" href="/register">Start free</a>
+      <nav class="public-desktop-nav" aria-label="Main Navigation">
+        <a href="#why-smartbill">Why SmartBill</a>
+        <a href="#qr-billing">Zero-Cost QR</a>
+        <a href="#barcode-speed">Barcode Speed</a>
+        <a href="#savings">Savings Calculator</a>
+        <a href="#features">Features</a>
+        <a href="#faq">FAQ</a>
+      </nav>
+
+      <div class="public-header-actions">
+        <a class="public-btn-signin" href="/login">Sign In</a>
+        <a class="public-btn-signup" href="/register">
+          <span>Start Free</span>
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+        </a>
+      </div>
     </div>
   </header>
 
   <main>
-    <section class="public-hero" aria-labelledby="hero-title">
-      <div class="hero-copy">
-        <p class="eyebrow"><span class="eyebrow-dot"></span> Built for everyday retail</p>
-        <h1 id="hero-title">Smart billing.<br><span>Better business.</span></h1>
-        <p class="hero-description">
-          Create bills in seconds, manage your inventory, track sales, and run your shop
-          with confidence — all from one simple workspace.
-        </p>
-        <div class="hero-actions">
-          <a class="public-button public-button-primary" href="/register">Start Free <span aria-hidden="true">→</span></a>
-          <a class="public-button public-button-secondary" href="/login">Sign In <span aria-hidden="true">↗</span></a>
-        </div>
-        <div class="hero-proof" aria-label="SmartBill benefits">
-          <span><strong>01</strong> Fast billing</span>
-          <span><strong>02</strong> Clear inventory</span>
-          <span><strong>03</strong> Simple sales insights</span>
-        </div>
-      </div>
-
-      <div class="hero-preview" aria-label="SmartBill workspace preview">
-        <div class="preview-glow"></div>
-        <div class="preview-window">
-          <div class="preview-window-bar">
-            <div class="preview-dots"><i></i><i></i><i></i></div>
-            <span>SmartBill workspace</span>
-            <span class="preview-live"><i></i> Live</span>
+    <!-- ====================================================================
+         HERO SECTION: High Impact, Realistic Retail POS & QR Invoicing
+         ==================================================================== -->
+    <section class="sb-hero-section" aria-labelledby="hero-title">
+      <div class="sb-hero-container">
+        
+        <div class="sb-hero-copy">
+          <div class="sb-eyebrow-pill">
+            <span class="pulse-dot"></span>
+            Zero-Cost Paperless Invoicing • No Printer Required
           </div>
-          <div class="preview-body">
-            <div class="preview-sidebar">
-              <img src="{{ url_for('static', filename='assets/smartbill-logo-dark-bg.png', v='20261028-new-logo') }}" alt="SmartBill" class="preview-mark">
-              <span class="preview-side-active"></span>
-              <span></span><span></span><span></span><span></span>
+
+          <h1 id="hero-title">
+            Dukaan Ki Billing Ab<br>
+            <span class="highlight">100% Fast, Digital & Paperless.</span>
+          </h1>
+
+          <p class="sb-hero-lead">
+            Say goodbye to ₹25,000 bulky POS machines, thermal paper roll jams, and fading ink receipts.
+            SmartBill turns any laptop, tablet, or phone into a 5-second billing counter with instant,
+            zero-cost digital QR receipts directly on your customer's smartphone.
+          </p>
+
+          <div class="sb-hero-actions">
+            <a class="sb-btn-cta-primary" href="/register">
+              <span>Create Free Account</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
+            <a class="sb-btn-cta-secondary" href="/login">
+              <span>Sign In to Workspace</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M7 17L17 7M7 7h10v10"/></svg>
+            </a>
+          </div>
+
+          <div class="sb-hero-guarantees">
+            <span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+              Zero SMS or Gateway Charges
+            </span>
+            <span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+              Save ₹20,000+ On Paper Rolls
+            </span>
+            <span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+              Works on Any Device
+            </span>
+          </div>
+        </div>
+
+        <div class="sb-hero-media-wrap">
+          <div class="sb-hero-card-frame">
+            <img class="sb-hero-img" src="{{ url_for('static', filename='assets/hero-retail-pos.jpg') }}" alt="SmartBill Retail Checkout Counter with QR Billing">
+          </div>
+
+          <!-- Glassmorphic Floating Badges -->
+          <div class="sb-float-pill sb-float-top">
+            <div class="pill-icon">⚡</div>
+            <div>
+              <small>Checkout Speed</small>
+              <strong>Bill generated in 3.4s • ₹1,480 [PAID]</strong>
             </div>
-            <div class="preview-dashboard">
-              <div class="preview-heading">
-                <div><small>Good morning</small><strong>Your shop at a glance</strong></div>
-                <span class="preview-avatar">A</span>
-              </div>
-              <div class="preview-metrics">
-                <div><small>Today's sales</small><strong>₹24,680</strong><em>↑ 12.8%</em></div>
-                <div><small>Bills created</small><strong>48</strong><em>↑ 8.4%</em></div>
-              </div>
-              <div class="preview-chart">
-                <div class="chart-label"><small>Sales overview</small><span>Last 7 days</span></div>
-                <svg viewBox="0 0 480 130" role="img" aria-label="Sales trend chart">
-                  <path class="chart-grid" d="M0 24H480M0 64H480M0 104H480"></path>
-                  <path class="chart-fill" d="M0 105 C38 94, 58 99, 86 76 S136 78, 161 86 S200 57, 224 66 S270 80, 298 48 S348 67, 372 38 S416 46, 480 17 V130 H0Z"></path>
-                  <path class="chart-line" d="M0 105 C38 94, 58 99, 86 76 S136 78, 161 86 S200 57, 224 66 S270 80, 298 48 S348 67, 372 38 S416 46, 480 17"></path>
-                </svg>
-              </div>
-              <div class="preview-bottom-row">
-                <div><small>Recent bill</small><strong>INV-1048</strong><span>Customer payment received</span></div>
-                <span class="preview-paid">Paid</span>
-              </div>
+          </div>
+
+          <div class="sb-float-pill sb-float-bottom">
+            <div class="pill-icon">📲</div>
+            <div>
+              <small>Dynamic Counter QR</small>
+              <strong>Customer received bill on phone • ₹0 spent</strong>
             </div>
           </div>
         </div>
-        <div class="preview-float preview-float-top"><span>✓</span><div><strong>Bill created</strong><small>Just now</small></div></div>
-        <div class="preview-float preview-float-bottom"><small>Stock status</small><strong>Everything clear</strong><em>Updated today</em></div>
+
       </div>
     </section>
 
-    <section class="public-trust" aria-label="SmartBill highlights">
-      <p>One clear workspace for your shop</p>
-      <div><span>Bill faster</span><i></i><span>Know your stock</span><i></i><span>Track every sale</span></div>
-    </section>
-
-    <section class="public-section feature-section" id="features" aria-labelledby="features-title">
-      <div class="section-heading">
-        <p class="eyebrow">One workspace. Less busywork.</p>
-        <h2 id="features-title">The essentials, <span>beautifully simple.</span></h2>
-        <p>SmartBill gives your daily operations a clear home, without unnecessary screens or confusing controls.</p>
+    <!-- ====================================================================
+         RETAIL CATEGORIES / TRUST BAR
+         ==================================================================== -->
+    <div class="sb-trust-bar">
+      <div class="sb-trust-title">
+        <span>🏪</span> Engineered for Indian Retailers:
       </div>
-      <div class="feature-grid">
-        <article class="feature-card feature-card-large">
-          <div class="feature-icon feature-icon-green">₹</div>
-          <p class="feature-index">01 / BILLING</p>
-          <h3>Create a bill in seconds</h3>
-          <p>Find products quickly, add customer details and share a professional invoice before your customer leaves.</p>
-          <a href="/billing">Explore billing <span>↗</span></a>
-          <div class="mini-invoice">
-            <div><span>SmartBill</span><small>INV-1048</small></div>
-            <div><span>3 items</span><strong>₹2,480</strong></div>
-            <em>Payment received</em>
+      <div class="sb-trust-chips">
+        <span class="sb-trust-chip"><span>🛒</span> Kirana & Supermarkets</span>
+        <span class="sb-trust-chip"><span>👗</span> Apparel & Footwear</span>
+        <span class="sb-trust-chip"><span>📱</span> Mobile & Electronics</span>
+        <span class="sb-trust-chip"><span>☕</span> Cafes & Bakeries</span>
+        <span class="sb-trust-chip"><span>💊</span> Pharmacy & Cosmetics</span>
+      </div>
+    </div>
+
+    <!-- ====================================================================
+         SECTION: KYU BANAYA GAYA HAI SMARTBILL? (Problem vs Solution)
+         ==================================================================== -->
+    <section class="sb-section" id="why-smartbill">
+      <div class="sb-section-inner">
+        <div class="sb-section-header">
+          <span class="sb-tag">The Big Shift in Retail</span>
+          <h2>Kyu Banaya Gaya Hai <span>SmartBill?</span></h2>
+          <p>
+            Har saal chote aur bade dukaandar thermal paper rolls, printer repairs, aur mehenge POS machines par
+            hazaaron rupaye waste karte hain. SmartBill ne billing ko zero-cost, eco-friendly aur superfast bana diya hai.
+          </p>
+        </div>
+
+        <div class="sb-comparison-grid">
+          <!-- The Old Problem -->
+          <div class="sb-comp-card sb-comp-card-bad">
+            <span class="sb-comp-badge">❌ Purana Tareeqa (Thermal POS)</span>
+            <h3>Purani Billing Machines & Paper Rolls</h3>
+            <p class="comp-desc">Dukandar ka nuksan, customer ki pareshani aur roz ka kharch:</p>
+
+            <ul class="sb-comp-list">
+              <li>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                <span><strong>Mehenge Hardware:</strong> ₹18,000 se ₹35,000 ka POS machine aur annual maintenance.</span>
+              </li>
+              <li>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                <span><strong>Paper Roll ka Roz ka Kharch:</strong> Har mahine ₹1,200–₹2,500 thermal rolls par barbaad.</span>
+              </li>
+              <li>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                <span><strong>Fading Ink:</strong> 2 se 3 hafte me thermal bill ka print gayab ho jata hai, customer dispute me pareshani.</span>
+              </li>
+              <li>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                <span><strong>Rush Hour Jams:</strong> Evening rush me printer paper atakta hai aur customer line lambi ho jaati hai.</span>
+              </li>
+              <li>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                <span><strong>SMS Fees:</strong> Digital bill bhejne ke liye 25 paise per SMS gateway charges.</span>
+              </li>
+            </ul>
+
+            <div class="sb-comp-footer">
+              <span>Annual Hidden Expense:</span>
+              <strong>₹25,000 – ₹45,000 / Year</strong>
+            </div>
           </div>
-        </article>
-        <article class="feature-card">
-          <div class="feature-icon feature-icon-blue">▦</div>
-          <p class="feature-index">02 / INVENTORY</p>
-          <h3>Know what is in stock</h3>
-          <p>Keep your products organised and spot low stock before it becomes a problem.</p>
-          <a href="/products">Manage products <span>↗</span></a>
-          <div class="stock-list"><span><i class="stock-dot green"></i> Tea powder <b>48</b></span><span><i class="stock-dot orange"></i> Rice 5kg <b>8</b></span></div>
-        </article>
-        <article class="feature-card">
-          <div class="feature-icon feature-icon-purple">↗</div>
-          <p class="feature-index">03 / INSIGHTS</p>
-          <h3>See how your shop grows</h3>
-          <p>Simple sales summaries help you make confident decisions every day.</p>
-          <a href="/dashboard">View dashboard <span>↗</span></a>
-          <div class="mini-bars"><i style="height:34%"></i><i style="height:50%"></i><i style="height:42%"></i><i style="height:68%"></i><i style="height:58%"></i><i style="height:82%"></i><i style="height:72%"></i></div>
-        </article>
-      </div>
-    </section>
 
-    <section class="public-section workflow-section" id="how-it-works" aria-labelledby="workflow-title">
-      <div class="workflow-visual"><span class="workflow-number">03</span><div class="workflow-ring ring-one"></div><div class="workflow-ring ring-two"></div><strong>Ready when<br><span>you are.</span></strong></div>
-      <div class="workflow-copy">
-        <p class="eyebrow">Start in a few minutes</p>
-        <h2 id="workflow-title">From first bill to <span>full control.</span></h2>
-        <div class="workflow-steps">
-          <div><b>01</b><span><strong>Create your workspace</strong><small>Add your shop details once and make SmartBill yours.</small></span></div>
-          <div><b>02</b><span><strong>Add your products</strong><small>Build a simple catalogue that keeps billing fast.</small></span></div>
-          <div><b>03</b><span><strong>Start serving customers</strong><small>Bill, share and track your progress from anywhere.</small></span></div>
+          <!-- The SmartBill Solution -->
+          <div class="sb-comp-card sb-comp-card-good">
+            <span class="sb-comp-badge">✅ The SmartBill Way</span>
+            <h3>Zero-Cost Digital Paperless POS</h3>
+            <p class="comp-desc">100% Free digital bill sharing, zero hardware cost, zero paper mess:</p>
+
+            <ul class="sb-comp-list">
+              <li>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                <span><strong>₹0 Hardware:</strong> Apne existing laptop, dukaan ke PC, tablet ya mobile par chalayein.</span>
+              </li>
+              <li>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                <span><strong>Zero-Cost QR Invoicing:</strong> Customer counter QR scan karta hai aur bill turant unke phone par khulta hai.</span>
+              </li>
+              <li>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                <span><strong>Permanent Digital Records:</strong> Har bill cloud me safe rehta hai, customer chahe 1 saal baad bhi PDF dekh sake.</span>
+              </li>
+              <li>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                <span><strong>Superfast Barcode Billing:</strong> USB/Bluetooth barcode scanner se 1 second me item add hota hai.</span>
+              </li>
+              <li>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                <span><strong>1-Click WhatsApp Share:</strong> Bina kisi SMS recharge ke direct WhatsApp par invoice link share karein.</span>
+              </li>
+            </ul>
+
+            <div class="sb-comp-footer">
+              <span>SmartBill Recurring Cost:</span>
+              <strong style="color: #19b875;">₹0 Paper • ₹0 Hardware Cost</strong>
+            </div>
+          </div>
         </div>
       </div>
     </section>
 
-    <section class="public-section why-section" id="why-smartbill" aria-labelledby="why-title">
-      <div class="section-heading"><p class="eyebrow">Designed around your day</p><h2 id="why-title">Professional tools.<br><span>Friendly experience.</span></h2></div>
-      <div class="why-points"><div><strong>01</strong><span><b>Clear by default</b><small>No clutter. Every screen tells you what to do next.</small></span></div><div><strong>02</strong><span><b>Works wherever you work</b><small>Use your phone at the counter or your desktop at the desk.</small></span></div><div><strong>03</strong><span><b>Built to keep up</b><small>Your shop data stays organised as your business grows.</small></span></div></div>
+    <!-- ====================================================================
+         SHOWCASE SECTION 1: ZERO-COST DYNAMIC QR BILLING
+         ==================================================================== -->
+    <section class="sb-showcase-section" id="qr-billing">
+      <div class="sb-section-inner">
+        <div class="sb-feature-split">
+          
+          <div class="sb-split-copy">
+            <span class="sb-tag">No Printer • No Paper • Zero Cost</span>
+            <h2>Customer Scans Counter QR.<br><span>Bill Unke Phone Par.</span></h2>
+            <p class="lead">
+              Jaise hi bill ready hota hai, SmartBill screen par ek dynamic, encrypted QR code generate karta hai.
+              Customer apne smartphone ke camera, Google Pay, PhonePe, Paytm ya WhatsApp se scan karta hai aur
+              poora itemized GST invoice turant unke phone browser me khul jata hai.
+            </p>
+
+            <div class="sb-step-cards">
+              <div class="sb-step-card">
+                <span class="sb-step-number">1</span>
+                <div>
+                  <strong>Bill Bana Kar Screen Par QR Dikhao</strong>
+                  <p>Customer ko total amount ke sath dynamic QR code display hota hai.</p>
+                </div>
+              </div>
+
+              <div class="sb-step-card">
+                <span class="sb-step-number">2</span>
+                <div>
+                  <strong>Customer Apne Phone Se Scan Kare</strong>
+                  <p>Kisi bhi app (Camera, Paytm, GPay, Scanner) se 1-second me scan ho jata hai.</p>
+                </div>
+              </div>
+
+              <div class="sb-step-card">
+                <span class="sb-step-number">3</span>
+                <div>
+                  <strong>Permanent Clean Digital Receipt</strong>
+                  <p>Customer chahe toh PDF download kare ya WhatsApp par forward kare. Zero paper roll wasted!</p>
+                </div>
+              </div>
+            </div>
+
+            <div style="display: flex; gap: 14px;">
+              <a class="sb-btn-cta-primary" href="/register">Start Paperless Today →</a>
+            </div>
+          </div>
+
+          <div class="sb-media-frame">
+            <img src="{{ url_for('static', filename='assets/qr-paperless-billing.jpg') }}" alt="Customer scanning counter QR for digital bill">
+            <div class="sb-stat-overlay">
+              <div>
+                <strong>₹0</strong>
+                <small>Cost Per Bill</small>
+              </div>
+              <div style="border-left: 1px solid rgba(255,255,255,0.2); border-right: 1px solid rgba(255,255,255,0.2); padding: 0 16px;">
+                <strong>100%</strong>
+                <small>Paper Saved</small>
+              </div>
+              <div>
+                <strong>3.2s</strong>
+                <small>Average Scan Time</small>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
     </section>
 
-    <section class="public-cta">
-      <div><p class="eyebrow">Your next better day starts here</p><h2>Make billing the easy part.</h2><p>Set up SmartBill today and spend more time on your shop.</p></div>
-      <a class="public-button public-button-light" href="/register">Start Free <span>→</span></a>
+    <!-- ====================================================================
+         SHOWCASE SECTION 2: 5-SECOND BARCODE & INVENTORY SPEED
+         ==================================================================== -->
+    <section class="sb-showcase-section" id="barcode-speed" style="background: #ffffff; border-top: 1px solid var(--sb-brand-border); border-bottom: 1px solid var(--sb-brand-border);">
+      <div class="sb-section-inner">
+        <div class="sb-feature-split reverse">
+          
+          <div class="sb-split-copy">
+            <span class="sb-tag">Lightning Fast Checkout</span>
+            <h2>Scan, Bill & Clear Counter Rush<br><span>Sirf 5 Seconds Me.</span></h2>
+            <p class="lead">
+              Rush hours me lambi line dukandar ka sabse bada headache hoti hai. SmartBill ka barcode engine
+              har standard USB aur wireless scanner ke sath bina kisi configuration ke turant kaam karta hai.
+            </p>
+
+            <div class="sb-step-cards">
+              <div class="sb-step-card">
+                <div class="sb-step-number">⚡</div>
+                <div>
+                  <strong>Instant Barcode Scanner Ready</strong>
+                  <p>Product par scanner trigger dabaiye, item name, MRP, discount aur tax turant cart me add ho jata hai.</p>
+                </div>
+              </div>
+
+              <div class="sb-step-card">
+                <div class="sb-step-number">📦</div>
+                <div>
+                  <strong>Live Inventory Deduction & Low Stock Alert</strong>
+                  <p>Har sale ke sath stock auto-update hota hai. Stock khatam hone se pehle system warning deta hai.</p>
+                </div>
+              </div>
+
+              <div class="sb-step-card">
+                <div class="sb-step-number">⌨️</div>
+                <div>
+                  <strong>Zero-Mouse Keyboard Shortcuts</strong>
+                  <p>Enter dabakar next item, F2 se payment, F4 se QR share — counter staff haath uthaye bina bill banata hai.</p>
+                </div>
+              </div>
+            </div>
+
+            <div style="display: flex; gap: 14px;">
+              <a class="sb-btn-cta-primary" href="/register">Try Fast Billing Free →</a>
+            </div>
+          </div>
+
+          <div class="sb-media-frame">
+            <img src="{{ url_for('static', filename='assets/barcode-inventory-speed.jpg') }}" alt="Barcode scanning at retail billing counter">
+            <div class="sb-stat-overlay">
+              <div>
+                <strong>0.2s</strong>
+                <small>Barcode Lookup</small>
+              </div>
+              <div style="border-left: 1px solid rgba(255,255,255,0.2); border-right: 1px solid rgba(255,255,255,0.2); padding: 0 16px;">
+                <strong>1-Click</strong>
+                <small>UPI / Cash / Card</small>
+              </div>
+              <div>
+                <strong>Auto</strong>
+                <small>Stock Sync</small>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
     </section>
+
+    <!-- ====================================================================
+         INTERACTIVE SAVINGS CALCULATOR
+         ==================================================================== -->
+    <section class="sb-calc-section" id="savings">
+      <div class="sb-section-inner">
+        <div class="sb-section-header">
+          <span class="sb-tag">Retail Economics</span>
+          <h2>Aapki Dukaan Ke <span>Kitne Rupaye Bachenge?</span></h2>
+          <p>Dekhiye thermal paper rolls, printer maintenance aur SMS pack band karke aap har saal kitni bachat karenge:</p>
+        </div>
+
+        <div class="sb-calc-card">
+          <div class="sb-calc-inputs">
+            <h3>Calculated Savings for Your Store</h3>
+            <p>Apni dukaan ke average daily bills select karein:</p>
+
+            <div class="sb-slider-group">
+              <div class="sb-slider-label">
+                <span>Daily Bills Created:</span>
+                <span class="value-badge" id="calcBillsDisplay">100 bills / day</span>
+              </div>
+              <input type="range" min="20" max="500" value="100" step="10" class="sb-slider" id="calcSlider">
+            </div>
+
+            <div class="sb-calc-presets">
+              <button class="sb-preset-btn" data-val="50">50 Bills (Small Shop)</button>
+              <button class="sb-preset-btn active" data-val="100">100 Bills (Medium Retail)</button>
+              <button class="sb-preset-btn" data-val="250">250 Bills (Busy Supermarket)</button>
+            </div>
+          </div>
+
+          <div class="sb-calc-results">
+            <small>Estimated Annual Savings</small>
+            <div class="sb-total-savings" id="calcTotalSavings">₹24,800</div>
+
+            <div class="sb-savings-breakdown">
+              <div>
+                <span>Thermal Paper Rolls Saved:</span>
+                <span id="calcPaperSavings">₹14,400 / yr</span>
+              </div>
+              <div>
+                <span>Printer Wear & Cartridges:</span>
+                <span id="calcPrinterSavings">₹6,000 / yr</span>
+              </div>
+              <div>
+                <span>SMS Gateway Pack Fees:</span>
+                <span id="calcSmsSavings">₹4,400 / yr</span>
+              </div>
+            </div>
+
+            <a class="sb-calc-cta" href="/register">Start Saving This Money Now →</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         BENTO FEATURES GRID
+         ==================================================================== -->
+    <section class="sb-section" id="features">
+      <div class="sb-section-inner">
+        <div class="sb-section-header">
+          <span class="sb-tag">Complete Retail Operating System</span>
+          <h2>Everything You Need. <span>Nothing You Don't.</span></h2>
+          <p>Dukaan chalana aasan hona chahiye. SmartBill aapko unneeded complexity ke bina pro features deta hai:</p>
+        </div>
+
+        <div class="sb-features-grid">
+          
+          <div class="sb-bento-card">
+            <div class="sb-bento-icon green">⚡</div>
+            <h3>5-Second Invoicing</h3>
+            <p>Lightning fast item search, barcode integration, customer detail lookup, and quick calculation of taxes & discounts.</p>
+            <a class="sb-bento-link" href="/register">Explore Billing ↗</a>
+          </div>
+
+          <div class="sb-bento-card">
+            <div class="sb-bento-icon blue">📲</div>
+            <h3>Dynamic QR & WhatsApp Share</h3>
+            <p>Generate unique QR codes on the spot. Customers scan and carry their bill on WhatsApp or mobile browser.</p>
+            <a class="sb-bento-link" href="/register">See QR Invoicing ↗</a>
+          </div>
+
+          <div class="sb-bento-card">
+            <div class="sb-bento-icon purple">📦</div>
+            <h3>Real-Time Stock Radar</h3>
+            <p>Live inventory tracking with auto-deduction and low-stock badge warnings before shelves run empty.</p>
+            <a class="sb-bento-link" href="/register">Manage Inventory ↗</a>
+          </div>
+
+          <div class="sb-bento-card">
+            <div class="sb-bento-icon orange">🖨️</div>
+            <h3>Thermal Print Ready</h3>
+            <p>Agar kisi customer ko physical bill chahiye, toh 58mm aur 80mm thermal printers ke sath 1-click print support.</p>
+            <a class="sb-bento-link" href="/register">Printer Setup ↗</a>
+          </div>
+
+          <div class="sb-bento-card">
+            <div class="sb-bento-icon teal">📊</div>
+            <h3>Daily Shop Analytics</h3>
+            <p>See today's gross sales, bill count, average order value, top selling items, and monthly growth trends.</p>
+            <a class="sb-bento-link" href="/register">View Dashboard ↗</a>
+          </div>
+
+          <div class="sb-bento-card">
+            <div class="sb-bento-icon red">🔒</div>
+            <h3>Staff Roles & Anti-Theft Logs</h3>
+            <p>Owner vs Cashier roles with restricted access. Complete audit trails of every bill created, edited, or cancelled.</p>
+            <a class="sb-bento-link" href="/register">Security Details ↗</a>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         HOW IT WORKS: 3 SIMPLE STEPS
+         ==================================================================== -->
+    <section class="sb-section" id="how-it-works" style="background: #ffffff; border-top: 1px solid var(--sb-brand-border);">
+      <div class="sb-section-inner">
+        <div class="sb-section-header">
+          <span class="sb-tag">Get Started in 2 Minutes</span>
+          <h2>Dukaan Ko Live Karna <span>Hai Bilkul Aasan</span></h2>
+          <p>Bina kisi technician ya lambe setup ke, aap 2 minute me apni pehli digital sale kar sakte hain:</p>
+        </div>
+
+        <div class="sb-steps-row">
+          <div class="sb-step-box">
+            <div class="sb-step-badge">1</div>
+            <h3>Create Shop Account</h3>
+            <p>Apna naam, shop name aur email daliye. Koi credit card ya upfront fees ki jarurat nahi hai.</p>
+          </div>
+
+          <div class="sb-step-box">
+            <div class="sb-step-badge">2</div>
+            <h3>Add Items or Barcodes</h3>
+            <p>Apne products ka name, price aur stock enter karein ya barcode scanner se instant add karein.</p>
+          </div>
+
+          <div class="sb-step-box">
+            <div class="sb-step-badge">3</div>
+            <h3>Start Billing & QR Sharing</h3>
+            <p>Counter laptop ya phone se bill banaiye, customer ko QR scan karwaiye, aur paise collect karein.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         FREQUENTLY ASKED QUESTIONS (Accordion)
+         ==================================================================== -->
+    <section class="sb-section" id="faq">
+      <div class="sb-section-inner">
+        <div class="sb-section-header">
+          <span class="sb-tag">Got Questions?</span>
+          <h2>Dukaandaron Ke <span>Common Sawaal</span></h2>
+          <p>SmartBill use karne se pehle jo sawaal aapke dimaag me aa sakte hain, unke clear answers:</p>
+        </div>
+
+        <div class="sb-faq-list">
+          
+          <div class="sb-faq-item open">
+            <div class="sb-faq-question">
+              <span>Kya mujhe digital bill share karne ke liye koi SMS pack ya gateway recharge karwana hoga?</span>
+              <div class="sb-faq-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></div>
+            </div>
+            <div class="sb-faq-answer">
+              <strong>Bilkul nahi!</strong> SmartBill dynamic QR code technology use karta hai. Customer aapki screen ya counter stand par QR code scan karta hai aur bill unke phone ke browser me turant khul jata hai. Isme dukaandar ko 1 rupaye ka bhi SMS charge nahi lagta — yeh 100% free hai.
+            </div>
+          </div>
+
+          <div class="sb-faq-item">
+            <div class="sb-faq-question">
+              <span>Agar kisi customer ko paper bill hi chahiye, toh kya mai printer se print nikal sakta hu?</span>
+              <div class="sb-faq-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></div>
+            </div>
+            <div class="sb-faq-answer">
+              <strong>Haan, bilkul!</strong> SmartBill paperless-first hai lekin physical thermal printers (58mm aur 80mm) ke sath fully compatible hai. Har bill ke sath 1-click 'Print Invoice' button hota hai jisse turant thermal receipt nikal aati hai.
+            </div>
+          </div>
+
+          <div class="sb-faq-item">
+            <div class="sb-faq-question">
+              <span>Customer ko QR code scan karne ke liye koi special application download karni padegi?</span>
+              <div class="sb-faq-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></div>
+            </div>
+            <div class="sb-faq-answer">
+              <strong>Nahi!</strong> Customer apne phone ke normal camera, Google Lens, Google Pay, Paytm, PhonePe ya WhatsApp me se kisi se bhi QR scan kar sakta hai. Bill seedha unke phone ke Chrome ya Safari browser me beautifully render hota hai bina kisi app install kiye.
+            </div>
+          </div>
+
+          <div class="sb-faq-item">
+            <div class="sb-faq-question">
+              <span>Kya mai apne mobile phone ya tablet se bhi billing kar sakta hu, ya laptop compulsory hai?</span>
+              <div class="sb-faq-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></div>
+            </div>
+            <div class="sb-faq-answer">
+              <strong>Aap kisi bhi device par chala sakte hain!</strong> SmartBill fully responsive web-based platform hai. Aap chahein toh apne Android/iPhone mobile phone se counter par ghoom-ghoom kar bill banayein, ya counter tablet ya desktop PC par chalayein.
+            </div>
+          </div>
+
+          <div class="sb-faq-item">
+            <div class="sb-faq-question">
+              <span>Mera shop data, inventory aur sales records kitna safe aur private hain?</span>
+              <div class="sb-faq-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></div>
+            </div>
+            <div class="sb-faq-answer">
+              Aapka saara data encrypted database me safely store hota hai. Har shop ka isolated database partition hota hai aur multi-user role management ke through cashiers aapki sensitive profit settings nahi dekh sakte.
+            </div>
+          </div>
+
+          <div class="sb-faq-item">
+            <div class="sb-faq-question">
+              <span>Kya mai apne staff ya cashier ke liye alag login bana sakta hu?</span>
+              <div class="sb-faq-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></div>
+            </div>
+            <div class="sb-faq-answer">
+              <strong>Ji haan!</strong> SmartBill me Role-Based Access Control hai. Aap staff ke liye Cashier role de sakte hain jisse wo sirf bill bana sakein aur inventory dekh sakein, jabki pricing change karna aur total shop reports dekhna sirf Owner ke paas rehta hai.
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         FINAL HIGH-IMPACT PRE-FOOTER BANNER
+         ==================================================================== -->
+    <div class="sb-final-banner-wrap">
+      <div class="sb-final-banner">
+        <div class="sb-banner-copy">
+          <h2>Ready to Ditch Paper Rolls &<br>Speed Up Your Billing?</h2>
+          <p>
+            Join thousands of smart retailers who bill faster, save ₹25,000+ yearly on thermal paper,
+            and give customers a modern QR receipt experience.
+          </p>
+        </div>
+
+        <div class="sb-banner-actions">
+          <a class="sb-banner-btn" href="/register">
+            <span>Start Free Account Today</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </a>
+          <small>⚡ 30-Second Setup • No Credit Card Required</small>
+        </div>
+      </div>
+    </div>
   </main>
 
-  <footer class="public-footer"><a class="public-brand" href="/" aria-label="SmartBill home"><img src="{{ url_for('static', filename='assets/smartbill-logo-light-bg.png', v='20261028-new-logo') }}" alt="SmartBill"></a><span>Simple tools for better shops.</span><div><a href="/login">Sign in</a><a href="/register">Create account</a></div></footer>
+  <!-- ======================================================================
+       COMPREHENSIVE REAL SAAS FOOTER
+       ====================================================================== -->
+  <footer class="public-footer">
+    <div class="public-footer-inner">
+      <div class="sb-footer-grid">
+        
+        <!-- Brand Info -->
+        <div class="sb-footer-col brand-col">
+          <a class="public-brand" href="/" aria-label="SmartBill Home">
+            <img src="{{ url_for('static', filename='assets/smartbill-logo-dark-bg.png') }}" alt="SmartBill Logo" style="height: 36px;">
+          </a>
+          <p>
+            SmartBill is the next-generation zero-cost paperless retail billing and POS workspace.
+            Designed to eliminate thermal paper waste and speed up counter checkouts across India.
+          </p>
+          <div class="sb-footer-badge">
+            <span>🇮🇳</span> Proudly Engineered for Indian Retailers
+          </div>
+        </div>
+
+        <!-- Product Links -->
+        <div class="sb-footer-col">
+          <h4>Product</h4>
+          <ul class="sb-footer-links">
+            <li><a href="/register">Start Free POS</a></li>
+            <li><a href="#qr-billing">Dynamic QR Invoicing</a></li>
+            <li><a href="#barcode-speed">Barcode Scanner Engine</a></li>
+            <li><a href="#savings">Savings Calculator</a></li>
+            <li><a href="#features">Inventory & Stock Radar</a></li>
+          </ul>
+        </div>
+
+        <!-- Solutions & Retail -->
+        <div class="sb-footer-col">
+          <h4>Solutions</h4>
+          <ul class="sb-footer-links">
+            <li><a href="/register">Kirana & Grocery</a></li>
+            <li><a href="/register">Apparel & Fashion</a></li>
+            <li><a href="/register">Electronics & Mobile</a></li>
+            <li><a href="/register">Cafes & Bakeries</a></li>
+            <li><a href="/register">Pharmacies</a></li>
+          </ul>
+        </div>
+
+        <!-- Support & Legal -->
+        <div class="sb-footer-col">
+          <h4>Support & Legal</h4>
+          <ul class="sb-footer-links">
+            <li><button type="button" onclick="openModal('termsModal')">Terms of Service</button></li>
+            <li><button type="button" onclick="openModal('privacyModal')">Privacy Policy</button></li>
+            <li><a href="mailto:support@smartbill.store">support@smartbill.store</a></li>
+            <li><a href="/login">Merchant Sign In</a></li>
+            <li><a href="/register">Create Shop Account</a></li>
+          </ul>
+        </div>
+
+      </div>
+
+      <div class="sb-footer-bottom">
+        <div>
+          © 2026 <strong>SmartBill Technologies</strong>. All rights reserved. Zero-Paper Retail Invoicing.
+        </div>
+        <div>
+          🔒 256-bit Encrypted • GST Compliant • 100% Offline-Safe
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ======================================================================
+       MODAL POPUPS: TERMS OF SERVICE & PRIVACY POLICY (Real Legal Content)
+       ====================================================================== -->
+  <!-- Terms of Service Modal -->
+  <div class="sb-modal-backdrop" id="termsModal" onclick="closeModalOnBackdrop(event, 'termsModal')">
+    <div class="sb-modal-box">
+      <div class="sb-modal-head">
+        <h3>SmartBill — Terms of Service</h3>
+        <button class="sb-modal-close" onclick="closeModal('termsModal')">✕</button>
+      </div>
+      <div class="sb-modal-body">
+        <h4>1. Acceptance of Terms</h4>
+        <p>By registering, accessing or using the SmartBill retail billing platform, you agree to be bound by these Terms of Service. SmartBill provides software tools for invoicing, stock tracking, and QR code generation for retail merchants.</p>
+
+        <h4>2. Merchant Account & Security</h4>
+        <p>You are responsible for maintaining the confidentiality of your account credentials, password, and cashier access roles. All actions performed under your store workspace are your responsibility.</p>
+
+        <h4>3. Zero-Cost QR Billing & Customer Consent</h4>
+        <p>SmartBill allows you to share digital invoices with customers via dynamic QR codes or WhatsApp. You agree to only generate legitimate tax/retail bills for actual customer transactions conducted at your retail premises.</p>
+
+        <h4>4. Data Ownership & Privacy</h4>
+        <p>Your product catalogue, sales records, invoice histories, and customer phone numbers remain your store's exclusive property. SmartBill does not sell or distribute your private business data to third-party advertisers.</p>
+
+        <h4>5. Service Availability</h4>
+        <p>SmartBill strives for 99.9% uptime. The software is provided on an 'as-is' and 'as-available' basis with local offline caching capability to ensure uninterrupted retail checkouts.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Privacy Policy Modal -->
+  <div class="sb-modal-backdrop" id="privacyModal" onclick="closeModalOnBackdrop(event, 'privacyModal')">
+    <div class="sb-modal-box">
+      <div class="sb-modal-head">
+        <h3>SmartBill — Privacy Policy</h3>
+        <button class="sb-modal-close" onclick="closeModal('privacyModal')">✕</button>
+      </div>
+      <div class="sb-modal-body">
+        <h4>1. Information We Collect</h4>
+        <p>SmartBill collects merchant store information (shop name, owner email, contact numbers) and catalogue data (product names, prices, SKU barcodes, inventory counts) solely for rendering billing services.</p>
+
+        <h4>2. Customer Data Protection</h4>
+        <p>Customer details (names, phone numbers) entered during checkout are stored strictly for digital invoice delivery and warranty record lookup. Customers can access their invoice via secure, randomized token links without requiring registration.</p>
+
+        <h4>3. Security Standards</h4>
+        <p>All communication between your POS terminal and our servers is encrypted using industry-standard TLS protocols. Passwords and sensitive tokens are hashed using cryptographic one-way hashes.</p>
+
+        <h4>4. Cookies & Local Storage</h4>
+        <p>We use essential cookies and local storage tokens strictly to maintain your active authenticated session and user interface preferences (such as Dark/Light theme).</p>
+      </div>
+    </div>
+  </div>
 
 </div>
 {% endblock %}
 
 {% block extra_js %}
+<script>
+  // =========================================================================
+  // INTERACTIVE SAVINGS CALCULATOR LOGIC
+  // =========================================================================
+  (function () {
+    const slider = document.getElementById('calcSlider');
+    const billsDisplay = document.getElementById('calcBillsDisplay');
+    const totalSavings = document.getElementById('calcTotalSavings');
+    const paperSavings = document.getElementById('calcPaperSavings');
+    const printerSavings = document.getElementById('calcPrinterSavings');
+    const smsSavings = document.getElementById('calcSmsSavings');
+    const presets = document.querySelectorAll('.sb-preset-btn');
+
+    if (!slider) return;
+
+    function updateCalculator(bills) {
+      bills = parseInt(bills, 10);
+      billsDisplay.textContent = bills + ' bills / day';
+
+      // Realistic retail math (in INR):
+      // Average thermal roll: 50 bills per roll @ ₹30 per roll = ₹0.60 per bill
+      const annualPaperCost = Math.round(bills * 365 * 0.40);
+      // Machine maintenance, thermal head replacement, power: ~₹4,000 to ₹12,000/yr
+      const annualPrinterWear = Math.round(3500 + (bills * 365 * 0.08));
+      // SMS gateway charges (20p per bill):
+      const annualSmsCost = Math.round(bills * 365 * 0.12);
+
+      const grandTotal = annualPaperCost + annualPrinterWear + annualSmsCost;
+
+      totalSavings.textContent = '₹' + grandTotal.toLocaleString('en-IN');
+      paperSavings.textContent = '₹' + annualPaperCost.toLocaleString('en-IN') + ' / yr';
+      printerSavings.textContent = '₹' + annualPrinterWear.toLocaleString('en-IN') + ' / yr';
+      smsSavings.textContent = '₹' + annualSmsCost.toLocaleString('en-IN') + ' / yr';
+    }
+
+    slider.addEventListener('input', function () {
+      updateCalculator(this.value);
+      presets.forEach(p => p.classList.remove('active'));
+    });
+
+    presets.forEach(btn => {
+      btn.addEventListener('click', function () {
+        const val = this.getAttribute('data-val');
+        slider.value = val;
+        presets.forEach(p => p.classList.remove('active'));
+        this.classList.add('active');
+        updateCalculator(val);
+      });
+    });
+
+    // Initial run
+    updateCalculator(slider.value);
+  })();
+
+  // =========================================================================
+  // FAQ ACCORDION LOGIC
+  // =========================================================================
+  document.querySelectorAll('.sb-faq-question').forEach(header => {
+    header.addEventListener('click', () => {
+      const parent = header.closest('.sb-faq-item');
+      const isOpen = parent.classList.contains('open');
+
+      // Close all others
+      document.querySelectorAll('.sb-faq-item').forEach(item => {
+        item.classList.remove('open');
+      });
+
+      // Toggle current
+      if (!isOpen) {
+        parent.classList.add('open');
+      }
+    });
+  });
+
+  // =========================================================================
+  // TERMS & PRIVACY MODAL CONTROLLERS
+  // =========================================================================
+  function openModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+      modal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+  }
+
+  function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+      modal.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+  }
+
+  function closeModalOnBackdrop(event, modalId) {
+    if (event.target.id === modalId) {
+      closeModal(modalId);
+    }
+  }
+
+  // Escape key closes modal
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      document.querySelectorAll('.sb-modal-backdrop.active').forEach(modal => {
+        modal.classList.remove('active');
+      });
+      document.body.style.overflow = '';
+    }
+  });
+</script>
 {% endblock %}
