@@ -1739,14 +1739,16 @@ body.auth-page .auth-submit:hover {
   }
 
   .dashboard-page .dash-kpi-grid .kpi-card {
+    position: relative !important;
     display: flex !important;
     min-width: 0 !important;
-    min-height: 108px !important;
-    flex-direction: column !important;
+    min-height: 128px !important;
+    flex-direction: row !important;
     align-items: flex-start !important;
-    justify-content: space-between !important;
-    gap: 8px !important;
-    padding: 14px !important;
+    justify-content: flex-start !important;
+    gap: 14px !important;
+    padding: 17px !important;
+    overflow: hidden !important;
     border: 1px solid var(--dash-line) !important;
     border-radius: 14px !important;
     box-shadow: 0 7px 20px rgba(18,35,53,.045) !important;
@@ -1796,22 +1798,32 @@ body.auth-page .auth-submit:hover {
   }
 
   .dashboard-page .dash-kpi-grid .kpi-details {
-    display: block !important;
-    min-width: 0;
-    width: 100%;
+    display: grid !important;
+    min-width: 0 !important;
+    gap: 2px !important;
+    width: auto !important;
   }
 
   .dashboard-page .dash-kpi-grid .kpi-label {
-    margin-top: 0 !important;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    display: block !important;
+    color: #6b7b8b !important;
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    line-height: 1.3 !important;
+    margin: 0 !important;
   }
 
   .dashboard-page .dash-kpi-grid .kpi-value {
-    margin-top: 3px !important;
-    font-size: 21px !important;
-    line-height: 1.05;
+    display: block !important;
+    color: var(--sb-ink) !important;
+    font-size: 25px !important;
+    font-weight: 800 !important;
+    letter-spacing: -.04em !important;
+    line-height: 1.15 !important;
+    margin: 0 !important;
   }
 
   @media (max-width: 1024px) {
@@ -3279,42 +3291,86 @@ body:not(.public-home) .dashboard-page .dash-list-card .dash-prod-name {
   .sales-page .sales-clear-btn { width: 100%; }
 }
 
-/* Screen layout: dashboard KPI cards stay in a compact two-column mobile grid. */
+/* Screen layout: dashboard KPI cards match the clean inventory cards (both desktop & mobile). */
 body:not(.public-home) .dashboard-page .dash-kpi-grid {
   display: grid !important;
   grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
-  gap: 10px !important;
+  gap: 12px !important;
   width: 100% !important;
   min-width: 0 !important;
+  margin-bottom: 22px !important;
 }
 
-.dashboard-page .dash-kpi-grid .kpi-card {
+body:not(.public-home) .dashboard-page .dash-kpi-grid .kpi-card {
+  position: relative !important;
   display: flex !important;
   min-width: 0 !important;
-  min-height: 108px !important;
-  flex-direction: column !important;
+  min-height: 128px !important;
+  flex-direction: row !important;
   align-items: flex-start !important;
-  justify-content: space-between !important;
-  gap: 8px !important;
-  padding: 14px !important;
+  justify-content: flex-start !important;
+  gap: 14px !important;
+  padding: 17px !important;
+  overflow: hidden !important;
+  border: 1px solid #dfeaf1 !important;
+  border-radius: 14px !important;
+  background: #f5f9ff !important;
+  box-shadow: 0 5px 16px rgba(18, 35, 53, .035) !important;
+  color: var(--sb-ink) !important;
 }
 
-.dashboard-page .dash-kpi-grid .kpi-details {
-  display: block !important;
-  width: 100% !important;
+body:not(.public-home) .dashboard-page .dash-kpi-grid .kpi-icon,
+body:not(.public-home) .dashboard-page .dash-kpi-grid .kpi-card .kpi-icon {
+  display: grid !important;
+  width: 38px !important;
+  height: 38px !important;
+  flex: 0 0 38px !important;
+  place-items: center !important;
+  border-radius: 12px !important;
+}
+
+body:not(.public-home) .dashboard-page .dash-kpi-grid .kpi-icon svg {
+  width: 18px !important;
+  height: 18px !important;
+}
+
+body:not(.public-home) .dashboard-page .dash-kpi-grid .kpi-details {
+  display: grid !important;
   min-width: 0 !important;
+  gap: 2px !important;
+  width: auto !important;
 }
 
-.dashboard-page .dash-kpi-grid .kpi-label {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+body:not(.public-home) .dashboard-page .dash-kpi-grid .kpi-label {
+  display: block !important;
+  color: #6b7b8b !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  line-height: 1.3 !important;
+  margin: 0 !important;
 }
 
-.dashboard-page .dash-kpi-grid .kpi-value {
-  margin-top: 3px !important;
-  font-size: 21px !important;
-  line-height: 1.05 !important;
+body:not(.public-home) .dashboard-page .dash-kpi-grid .kpi-value {
+  display: block !important;
+  color: var(--sb-ink) !important;
+  font-size: 25px !important;
+  font-weight: 800 !important;
+  letter-spacing: -.04em !important;
+  line-height: 1.15 !important;
+  margin: 0 !important;
+}
+
+body:not(.public-home) .dashboard-page .dash-kpi-grid .kpi-bars {
+  position: absolute !important;
+  right: 15px !important;
+  bottom: 17px !important;
+  display: flex !important;
+  height: 27px !important;
+  align-items: flex-end !important;
+  gap: 3px !important;
 }
 
 @media (max-width: 1024px) {
@@ -3323,18 +3379,68 @@ body:not(.public-home) .dashboard-page .dash-kpi-grid {
   }
 }
 
-@media (max-width: 760px) {
+@media (max-width: 768px) {
   body:not(.public-home) .dashboard-page .dash-kpi-grid {
+    display: grid !important;
     grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
     gap: 10px !important;
+    width: 100% !important;
   }
 
-  .dashboard-page .dash-kpi-grid .kpi-card {
-    min-height: 104px !important;
-    padding: 13px !important;
+  body:not(.public-home) .dashboard-page .dash-kpi-grid .kpi-card {
+    min-height: 108px !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    justify-content: flex-start !important;
+    gap: 9px !important;
+    padding: 14px !important;
   }
 
-  .dashboard-page .dash-kpi-grid .kpi-value {
-    font-size: 20px !important;
+  body:not(.public-home) .dashboard-page .dash-kpi-grid .kpi-icon,
+  body:not(.public-home) .dashboard-page .dash-kpi-grid .kpi-card .kpi-icon {
+    width: 32px !important;
+    height: 32px !important;
+    flex: 0 0 32px !important;
+    flex-basis: 32px !important;
+    border-radius: 10px !important;
+  }
+
+  body:not(.public-home) .dashboard-page .dash-kpi-grid .kpi-icon svg {
+    width: 16px !important;
+    height: 16px !important;
+  }
+
+  body:not(.public-home) .dashboard-page .dash-kpi-grid .kpi-details {
+    display: grid !important;
+    min-width: 0 !important;
+    gap: 2px !important;
+    width: 100% !important;
+  }
+
+  body:not(.public-home) .dashboard-page .dash-kpi-grid .kpi-label {
+    display: block !important;
+    color: #6b7b8b !important;
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    line-height: 1.25 !important;
+    margin: 0 !important;
+  }
+
+  body:not(.public-home) .dashboard-page .dash-kpi-grid .kpi-value {
+    display: block !important;
+    color: var(--sb-ink) !important;
+    font-size: 22px !important;
+    font-weight: 800 !important;
+    letter-spacing: -.04em !important;
+    line-height: 1.1 !important;
+    margin: 0 !important;
+  }
+
+  body:not(.public-home) .dashboard-page .dash-kpi-grid .kpi-bars {
+    right: 13px !important;
+    bottom: 14px !important;
   }
 }
