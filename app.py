@@ -10,10 +10,11 @@ from urllib.parse import urlparse
 from zoneinfo import ZoneInfo
 
 from flask import Flask, jsonify, redirect, render_template, request, session, url_for
+from flask_compress import Compress
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from sqlalchemy import DateTime, ForeignKey, Integer, Numeric, String, Text, UniqueConstraint, create_engine, func, select
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship, scoped_session, sessionmaker
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship, scoped_session, sessionmaker, selectinload
 from werkzeug.security import check_password_hash, generate_password_hash
 
 
@@ -149,6 +150,7 @@ class AuditEvent(Base):
 
 def create_app() -> Flask:
     app = Flask(__name__)
+    Compress(app)
     logger = logging.getLogger("smartbill")
     logging.basicConfig(level=os.environ.get("SMARTBILL_LOG_LEVEL", "INFO").upper())
     default_database_url = f"sqlite:///{(Path(__file__).resolve().parent / 'smartbill.db').as_posix()}"
@@ -162,6 +164,18 @@ def create_app() -> Flask:
         SESSION_COOKIE_SAMESITE="Lax",
         SESSION_COOKIE_SECURE=os.environ.get("SMARTBILL_SECURE_COOKIES", "").lower() == "true",
         RATELIMIT_STORAGE_URI=os.environ.get("RATELIMIT_STORAGE_URI", "memory://"),
+        SEND_FILE_MAX_AGE_DEFAULT=int(os.environ.get("SEND_FILE_MAX_AGE_DEFAULT", 86400 * 30)),
+        COMPRESS_MIMETYPES=[
+            "text/html",
+            "text/css",
+            "text/xml",
+            "text/javascript",
+            "application/json",
+            "application/javascript",
+            "image/svg+xml",
+        ],
+        COMPRESS_LEVEL=6,
+        COMPRESS_MIN_SIZE=500,
     )
     if app.config["PUBLIC_BASE_URL"]:
         public_url = urlparse(app.config["PUBLIC_BASE_URL"])
@@ -384,6 +398,13 @@ def create_app() -> Flask:
         session_db.commit()
         session_db.add(ShopMembership(user_id=user.id, shop_id=shop.id, role="owner"))
         session_db.commit()
+
+    @app.route("/sw.js")
+    def service_worker():
+        response = app.send_static_file("sw.js")
+        response.headers["Service-Worker-Allowed"] = "/"
+        response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+        return response
 
     @app.route("/")
     def home():
@@ -817,14 +838,14 @@ def create_app() -> Flask:
     def api_invoices():
         shop_id = current_shop_id()
         session_db = db()
-        query = select(Invoice).where(Invoice.shop_id == shop_id).order_by(Invoice.created_at.desc())
+        query = select(Invoice).where(Invoice.shop_id == shop_id).options(selectinload(Invoice.items)).order_by(Invoice.created_at.desc())
         invoices = session_db.scalars(query).all()
         return jsonify({"invoices": [invoice_json(invoice) for invoice in invoices]})
 
     @app.get("/api/invoices/<int:invoice_id>")
     @private_route
     def api_invoice(invoice_id):
-        invoice = db().scalar(select(Invoice).where(Invoice.id == invoice_id, Invoice.shop_id == current_shop_id()))
+        invoice = db().scalar(select(Invoice).where(Invoice.id == invoice_id, Invoice.shop_id == current_shop_id()).options(selectinload(Invoice.items)))
         if not invoice:
             return json_error("Invoice not found", 404)
         return jsonify({"invoice": invoice_json(invoice)})
@@ -938,7 +959,12 @@ def create_app() -> Flask:
     def api_dashboard():
         shop_id = current_shop_id()
         session_db = db()
-        invoices = session_db.scalars(select(Invoice).where(Invoice.shop_id == shop_id).order_by(Invoice.created_at.desc())).all()
+        invoices = session_db.scalars(
+            select(Invoice)
+            .where(Invoice.shop_id == shop_id)
+            .options(selectinload(Invoice.items))
+            .order_by(Invoice.created_at.desc())
+        ).all()
         products = session_db.scalars(select(Product).where(Product.shop_id == shop_id, Product.is_active.is_(True))).all()
         local_zone = ZoneInfo("Asia/Kolkata")
         today = datetime.now(local_zone).date()
