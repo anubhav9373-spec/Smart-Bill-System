@@ -9,9 +9,10 @@ const STATIC_ASSETS = [
   '/static/js/products.js',
   '/static/js/sales.js',
   '/static/js/profile.js',
-  '/static/assets/smartbill-logo-dark.svg',
-  '/static/assets/smartbill-logo-light.svg',
-  '/static/assets/smartbill-favicon.svg',
+  '/static/assets/smartbill-logo-dark-bg.png',
+  '/static/assets/smartbill-logo-light-bg.png',
+  '/static/assets/smartbill-favicon.png',
+  '/static/assets/smartbill-mark.png',
   '/static/manifest.webmanifest'
 ];
 

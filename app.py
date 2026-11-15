@@ -10,7 +10,10 @@ from urllib.parse import urlparse
 from zoneinfo import ZoneInfo
 
 from flask import Flask, jsonify, redirect, render_template, request, session, url_for
-from flask_compress import Compress
+try:
+    from flask_compress import Compress
+except ImportError:
+    Compress = None
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from sqlalchemy import DateTime, ForeignKey, Integer, Numeric, String, Text, UniqueConstraint, create_engine, func, select
@@ -150,7 +153,8 @@ class AuditEvent(Base):
 
 def create_app() -> Flask:
     app = Flask(__name__)
-    Compress(app)
+    if Compress is not None:
+        Compress(app)
     logger = logging.getLogger("smartbill")
     logging.basicConfig(level=os.environ.get("SMARTBILL_LOG_LEVEL", "INFO").upper())
     default_database_url = f"sqlite:///{(Path(__file__).resolve().parent / 'smartbill.db').as_posix()}"

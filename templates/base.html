@@ -8,7 +8,7 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <link rel="manifest" href="{{ url_for('static', filename='manifest.webmanifest') }}">
-  <link rel="icon" href="{{ url_for('static', filename='assets/smartbill-favicon.svg', v='20261028-new-logo') }}" type="image/svg+xml">
+  <link rel="icon" href="{{ url_for('static', filename='assets/smartbill-favicon.png', v='20261028-new-logo') }}" type="image/png">
   <title>{% block title %}SmartBill — Retail Billing System{% endblock %}</title>
 
   <!-- Typography: Plus Jakarta Sans -->
@@ -38,7 +38,7 @@
     <!-- DESKTOP SIDEBAR -->
     <aside class="sidebar" id="sidebar">
       <a class="brand" href="/" aria-label="SmartBill Home">
-        <img src="{{ url_for('static', filename='assets/smartbill-logo-dark.svg', v='20261028-new-logo') }}" alt="SmartBill Logo" class="smartbill-logo">
+        <img src="{{ url_for('static', filename='assets/smartbill-logo-dark-bg.png', v='20261028-new-logo') }}" alt="SmartBill Logo" class="smartbill-logo">
       </a>
 
       <nav class="main-nav" aria-label="Main navigation">
@@ -87,7 +87,7 @@
       <!-- CLEAN STICKY MOBILE TOP HEADER -->
       <header class="mobile-header">
         <a href="/" class="mobile-logo-link" aria-label="SmartBill Home">
-          <img src="{{ url_for('static', filename='assets/smartbill-logo-dark.svg', v='20261028-new-logo') }}" alt="SmartBill" class="mobile-logo">
+          <img src="{{ url_for('static', filename='assets/smartbill-logo-dark-bg.png', v='20261028-new-logo') }}" alt="SmartBill" class="mobile-logo">
         </a>
 
         <div class="mobile-page-title">
